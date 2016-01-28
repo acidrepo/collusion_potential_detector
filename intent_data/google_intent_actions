@@ -1,0 +1,3 @@
+com.google.android.c2dm.intent.REGISTRATION
+com.google.android.gms.common.oob.OOB_SIGN_UP
+com.google.android.c2dm.intent.RECEIVE

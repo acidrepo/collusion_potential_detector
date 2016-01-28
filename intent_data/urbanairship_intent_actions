@@ -1,0 +1,16 @@
+i_com.urbanairship.analytics.SEND
+i_com.urbanairship.location.ACTION_LOCATION_CHANGED
+i_com.urbanairship.location.ACTION_SINGLE_LOCATION_CHANGED
+i_com.urbanairship.location.LOCATION_SERVICE_BOUND
+i_com.urbanairship.location.LOCATION_SERVICE_UNBOUND
+i_com.urbanairship.location.RECORD_CURRENT_LOCATION
+i_com.urbanairship.location.START
+i_com.urbanairship.location.STOP
+i_com.urbanairship.push.DELETE_APID
+i_com.urbanairship.push.GCM_REGISTRATION
+i_com.urbanairship.push.HEARTBEAT
+i_com.urbanairship.push.NOTIFICATION_OPENED
+i_com.urbanairship.push.START
+i_com.urbanairship.push.START_SERVICE
+i_com.urbanairship.push.STOP
+i_com.urbanairship.push.UPDATE_APID

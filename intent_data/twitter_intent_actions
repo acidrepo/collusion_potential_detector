@@ -1,0 +1,11 @@
+i_com.twitter.android.action.SEARCH
+i_com.twitter.android.action.USER_SHOW
+i_com.twitter.android.action.c2dm.ENABLE
+i_com.twitter.android.action.c2dm.REFRESH
+i_com.twitter.android.cleanup
+i_com.twitter.android.intent.action.FOLLOW
+i_com.twitter.android.pick_multiple
+i_com.twitter.android.poll.alarm
+i_com.twitter.android.post.quote
+i_com.twitter.android.post.reply
+i_com.twitter.android.post.status

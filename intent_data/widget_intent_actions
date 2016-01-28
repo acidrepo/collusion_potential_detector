@@ -1,0 +1,10 @@
+android.appwidget.action.APPWIDGET_BIND
+android.appwidget.action.APPWIDGET_CONFIGURE
+android.appwidget.action.APPWIDGET_DELETED
+android.appwidget.action.APPWIDGET_DISABLED
+android.appwidget.action.APPWIDGET_ENABLED
+android.appwidget.action.APPWIDGET_HOST_RESTORED
+android.appwidget.action.APPWIDGET_UPDATE_OPTIONS
+android.appwidget.action.APPWIDGET_PICK
+android.appwidget.action.APPWIDGET_RESTORED
+android.appwidget.action.APPWIDGET_UPDATE

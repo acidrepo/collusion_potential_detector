@@ -1,0 +1,4 @@
+android.speech.tts.engine.CHECK_TTS_DATA
+android.speech.tts.engine.GET_SAMPLE_TEXT
+android.speech.tts.engine.INSTALL_TTS_DATA
+android.speech.tts.engine.TTS_DATA_INSTALLED

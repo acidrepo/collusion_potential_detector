@@ -1,0 +1,6 @@
+i_com.dropbox.android.AUTHENTICATE_V1
+i_com.dropbox.android.AUTHENTICATE_V2
+i_com.dropbox.android.activity.QrAuthFragment.ACTION_RI_REMINDER
+i_com.dropbox.intent.action.DROPBOX_LOGIN_SECOND_ACCOUNT
+i_com.dropbox.intent.action.LOGIN
+i_com.dropbox.intent.action.SIGN_UP
