@@ -10,7 +10,7 @@ At the moment, both components must be run separately.
 
 You will need the latests version of Androguard to use the fact extractor. Once you have everyting placed in one folder you can
 ```
-python prolog_fact_generator [-v] folder result_prefix
+python prolog_fact_generator.py [-v] folder result_prefix
 ```
 
 Where:
