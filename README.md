@@ -15,7 +15,7 @@ python prolog_fact_generator.py [-v] folder result_prefix
 
 Where:
 - `-v`: Makes the tool give information about the fact extraction process
-- `folder`: Specifies the folder where the apps are stored
+- `folder`: Specifies the folder where the apps to be analysed are stored
 - `result_prefix`: Is the prefix that will be added to all output files
 
 The tool generates three output files:
