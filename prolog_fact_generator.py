@@ -2,7 +2,6 @@ import logging
 from acid_detectors.implicit_intents import get_implicit_intents, get_dynamic_receivers, get_static_receivers
 from acid_detectors.shared_preferences import get_shared_preferences_writes, get_shared_preferences_reads
 from optparse import OptionParser
-__author__ = 'jorgeblasco'
 from sets import Set
 import sys
 import os
@@ -10,7 +9,10 @@ import traceback
 import fnmatch
 sys.path.append("androguard/")
 from androguard.misc import AnalyzeAPK
+from androguard.core.androconf import CONF
+from androguard.session import Session
 
+__author__ = 'jorgeblasco'
 
 def get_all_apk_in_dir(folder,extension):
     matches = []
