@@ -1,0 +1,3 @@
+[submodule "androguard-acid"]
+	path = androguard-acid
+	url = https://github.com/guizos/androguard-acid.git

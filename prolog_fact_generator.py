@@ -7,7 +7,7 @@ import sys
 import os
 import traceback
 import fnmatch
-sys.path.append("androguard/")
+sys.path.append("androguard-acid/")
 from androguard.misc import AnalyzeAPK
 from androguard.core.androconf import CONF
 from androguard.session import Session
