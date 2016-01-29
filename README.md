@@ -5,6 +5,11 @@ app communication and used permissions. Extracted facts and a set of prolog rule
 potential between the apps in the analysed set. The tool is split in two components: the fact generator and the prolog program
 At the moment, both components must be run separately.
 
+## Requirements
+
+This project relies on Androguard to execute most of the analysis tasks. Specifically, we use Androguard 2.0. That version has a minor bug in 
+function call inside the `dvm.py`. This project links directly to a version with that bug so you don't need to change anything
+
 
 ## Usage
 
