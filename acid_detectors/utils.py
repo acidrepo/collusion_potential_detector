@@ -10,6 +10,8 @@ def should_analyze(class_name,include_support=None):
         return None
     elif 'Ljavassist' in class_name:
         return None
+    elif 'Lcom/google/android' in class_name:
+        return None
     else:
         return True
 
