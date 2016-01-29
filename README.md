@@ -37,7 +37,7 @@ To test this program we use py.test
 pip install py.test
 ```
 
-We have developed a set of colluding applications for Android to test this approach. However, in this repo you will find the apk folder empty. To request access to the app set, you can write and email to
+We have developed a set of colluding applications for Android to test this approach. The developed test can be found in an encrypted file inside the tests/apk folder. To request access to the file key to decrypt the TrueCrypt volume, you can write and email to
 Jorge dot Blasco dot 1 at city dot ac dot uk.
 
 ## Limitations
