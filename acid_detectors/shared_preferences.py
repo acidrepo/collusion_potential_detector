@@ -62,15 +62,16 @@ def get_shared_preferences_reads(apk,d,dx,include_support=None):
                 new_var = "v"+`num`
             # we look the position of the method in
             pref_file = track_string_value(method, index-1, new_var)
-            if not src_method_name  in [p.get_src(d.get_class_manager())[1] for p in context_instruction_paths]:
-                package = apk.get_package()
-            else:
-                context_path = get_path_of_method(src_class_name,src_method_name, context_instruction_paths,d)
+            context_path = get_path_of_method(src_class_name,src_method_name, context_instruction_paths,d)
+            if context_path:
+
                 context_method = d.get_method_by_idx(context_path.src_idx)
                 c_i = context_method.get_instruction(0,context_path.idx)
                 c_index = get_instruction_offset(c_i,context_method)
                 c_name_var = c_i.get_output().split(",")[1].strip()
                 package = track_string_value(context_method, c_index-1, c_name_var)
+            else:
+                package = apk.get_package()
             sharedprefs = SharedPreferencesAnalysis(package, pref_file,"read")
             shared_preferences.append(sharedprefs)
     return shared_preferences
