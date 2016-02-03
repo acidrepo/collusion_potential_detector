@@ -11,6 +11,7 @@ sys.path.append("androguard-acid/")
 from androguard.misc import AnalyzeAPK
 from androguard.core.androconf import CONF
 from androguard.session import Session
+from pyswip import Prolog
 
 __author__ = 'jorgeblasco'
 
@@ -33,7 +34,7 @@ def generate_prolog_facts(app_folder,result_prefix):
             permissions.extend([(str(a.get_package()), permission) for permission in a.get_permissions()])
             with open(result_prefix+"_uses.txt", 'a') as f:
                 for permission in permissions:
-                    f.write("uses("+permission[0]+","+permission[1]+").\n")
+                    f.write("uses('"+permission[0]+"','"+permission[1]+"').\n")
             logger.info("Looking for Intent Sends")
             sends = Set()
             sends.update([(str(a.get_package()),"i_"+intent.action) for intent in get_implicit_intents(a,d,dx)])
@@ -41,7 +42,7 @@ def generate_prolog_facts(app_folder,result_prefix):
             sends.update([(str(a.get_package()),"sp_"+shared.package+"_"+shared.preference_file) for shared in get_shared_preferences_writes(a,d,dx)])
             with open(result_prefix+"_trans.txt", 'a') as f:
                 for send in sends:
-                    f.write("trans("+send[0]+","+send[1]+").\n")
+                    f.write("trans('"+send[0]+"','"+send[1]+"').\n")
             logger.info("Looking for Dynamic Receivers")
             receives = Set()
             receives.update([(str(a.get_package()),"i_"+receiver.get_action()) for receiver in get_dynamic_receivers(a,d,dx)])
@@ -51,7 +52,7 @@ def generate_prolog_facts(app_folder,result_prefix):
             receives.update([(str(a.get_package()),"sp_"+shared.package+"_"+shared.preference_file) for shared in get_shared_preferences_reads(a,d,dx)])
             with open(result_prefix+"_recv.txt", 'a') as f:
                  for receive in receives:
-                    f.write("recv("+receive[0]+","+receive[1]+").\n")
+                    f.write("recv('"+receive[0]+"','"+receive[1]+"').\n")
         except:
             print "--Error with file "+file
             traceback.print_exc()
