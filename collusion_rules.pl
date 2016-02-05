@@ -2,9 +2,9 @@
 * If an app uses READ EXTERNAL STORAGE it will be capable of reading info through the storage.
 * If it uses WRITE, it will be able to do both. 
 */
-trans(A,'external_storage'):- uses(A,'android.permission.WRITE_EXTERNAL_STORAGE')
-recv(A,'external_storage'):- uses(A,'android.permission.WRITE_EXTERNAL_STORAGE')
-recv(A,'external_storage'):- uses(A,'android.permission.READ_EXTERNAL_STORAGE')
+/*trans(A,'external_storage'):- uses(A,'android.permission.WRITE_EXTERNAL_STORAGE').
+recv(A,'external_storage'):- uses(A,'android.permission.WRITE_EXTERNAL_STORAGE').
+recv(A,'external_storage'):- uses(A,'android.permission.READ_EXTERNAL_STORAGE').*/
 
 /*
 * There are certain permissions that provide an app with the capability of gathering
@@ -304,7 +304,7 @@ not_member(X, [Head|Tail]) :- X \= Head,not_member(X, Tail).
 /* A is an app, B is another app, [C] is the communication path (in communication channels) between A and B including them */
 
 channel([A|B],[C]) :- trans(A,C),recv(B,C), A\=B.
-channel([A|[D|B]],[C|K]) :- trans(A,C),recv(D,C), A\=D,channel([D|B],K) .
+channel([A|[D|B]],[C|K]) :- trans(A,C),recv(D,C), A\=D,channel([D|B],K).
 
 
 
