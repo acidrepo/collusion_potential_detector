@@ -1,0 +1,2 @@
+android.net.conn.CONNECTIVITY_CHANGE
+android.bluetooth.adapter.action.STATE_CHANGED
