@@ -36,13 +36,15 @@ def get_implicit_intents(apk,d,dx,include_support=None):
     intents = []
     instruction_paths = dx.tainted_packages.search_methods("Landroid/content/Intent;", "setAction", ".")
     instruction_paths.extend(dx.tainted_packages.search_methods("Intent", "<init>", "\(Ljava\/lang\/String"))
+    sendbroadcast_paths = dx.tainted_packages.search_methods("Context", "sendBroadcast", "\(Landroid\/content\/Intent")
+    sendbroadcast_paths.extend(dx.tainted_packages.search_methods("Context", "sendOrderedBroadcast", "\(Landroid\/content\/Intent"))
     for path in instruction_paths:
         src_class_name, src_method_name, src_descriptor =  path.get_src(d.get_class_manager())
         dst_class_name, dst_method_name, dst_descriptor =  path.get_dst( d.get_class_manager())
         if should_analyze(src_class_name,include_support):
             method = d.get_method_by_idx(path.src_idx)
             i = method.get_instruction(0,path.idx)
-            index =  method.code.get_bc().off_to_pos(path.idx)
+            index = method.code.get_bc().off_to_pos(path.idx)
             intent = i.get_output().split(",")[1].strip()
             back_index = index
             while back_index > 0:

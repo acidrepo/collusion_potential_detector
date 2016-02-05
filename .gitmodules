@@ -1,3 +1,6 @@
 [submodule "androguard-acid"]
 	path = androguard-acid
 	url = https://github.com/guizos/androguard-acid.git
+[submodule "pyswip"]
+	path = pyswip
+	url = https://github.com/guizos/pyswip.git

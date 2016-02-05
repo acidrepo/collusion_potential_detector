@@ -1,4 +1,6 @@
+import fnmatch
 import logging
+import os
 
 __author__ = 'jorgeblasco'
 
@@ -94,3 +96,22 @@ def look_for_put_of_string_instance(method, instance_name):
                 string_var = i.get_output().split(",")[0].strip()
                 return track_string_value(m,index,string_var)
     return instance_name
+
+def get_all_in_dir(folder,extension):
+    matches = []
+    for root, dirnames, filenames in os.walk(folder):
+        for filename in fnmatch.filter(filenames, '*'+extension):
+            if ".DS_Store" not in filename:
+                matches.append(os.path.join(root, filename))
+    return matches
+
+def escape_quotes(string=""):
+    return string.replace("\'",'\\\'')
+
+
+def is_contained_in_strings_of_list(string,list):
+    for element in list:
+        if element in string:
+            return True
+    return None
+
