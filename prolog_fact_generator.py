@@ -13,7 +13,7 @@ from androguard.misc import AnalyzeAPK
 from androguard.core.androconf import CONF
 from androguard.session import Session
 import ntpath
-from acid_detectors.utils import  escape_quotes
+from acid_detectors.utils import escape_quotes, get_all_in_dir
 
 __author__ = 'jorgeblasco'
 
