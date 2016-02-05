@@ -4,7 +4,7 @@ import sys
 sys.path.append("../")
 from acid_detectors.shared_preferences import get_shared_preferences_reads, get_shared_preferences_writes
 
-sys.path.append("../androguard/")
+sys.path.append("../androguard-acid/")
 from androguard.core.analysis.analysis import VMAnalysis
 from androguard.core.analysis.ganalysis import GVMAnalysis
 from androguard.core.bytecodes import apk
