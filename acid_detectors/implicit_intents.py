@@ -1,4 +1,5 @@
-from acid_detectors.utils import get_instruction_offset, track_method_call_action, should_analyze, track_string_value
+from acid_detectors.utils import get_instruction_offset, track_method_call_action, should_analyze, track_string_value, \
+    get_path_of_method, is_path_of_method_in_package
 
 __author__ = 'jorgeblasco'
 
@@ -25,7 +26,7 @@ class IntentFilterAnalysis(object):
     def __init__(self, action):
         self.action = action
 
-
+#TODO improve variable tainting with XRefFrom and XRefTo
 def get_implicit_intents(apk,d,dx,include_support=None):
     """
       Returns a list of Broadcast Intents that which action is set inside this method. They might not be declared in this method.
@@ -36,11 +37,8 @@ def get_implicit_intents(apk,d,dx,include_support=None):
     intents = []
     instruction_paths = dx.tainted_packages.search_methods("Landroid/content/Intent;", "setAction", ".")
     instruction_paths.extend(dx.tainted_packages.search_methods("Intent", "<init>", "\(Ljava\/lang\/String"))
-    sendbroadcast_paths = dx.tainted_packages.search_methods("Context", "sendBroadcast", "\(Landroid\/content\/Intent")
-    sendbroadcast_paths.extend(dx.tainted_packages.search_methods("Context", "sendOrderedBroadcast", "\(Landroid\/content\/Intent"))
     for path in instruction_paths:
         src_class_name, src_method_name, src_descriptor =  path.get_src(d.get_class_manager())
-        dst_class_name, dst_method_name, dst_descriptor =  path.get_dst( d.get_class_manager())
         if should_analyze(src_class_name,include_support):
             method = d.get_method_by_idx(path.src_idx)
             i = method.get_instruction(0,path.idx)

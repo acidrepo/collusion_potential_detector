@@ -5,10 +5,6 @@ sys.path.append("../")
 from acid_detectors.implicit_intents import get_implicit_intents, get_dynamic_receivers, get_static_receivers
 
 sys.path.append("../androguard-acid/")
-from androguard.core.analysis.analysis import VMAnalysis
-from androguard.core.analysis.ganalysis import GVMAnalysis
-from androguard.core.bytecodes import apk
-from androguard.core.bytecodes import dvm
 from androguard.misc import AnalyzeAPK
 
 __author__ = 'jorgeblasco'

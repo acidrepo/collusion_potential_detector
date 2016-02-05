@@ -1,5 +1,5 @@
 import fnmatch
-import logging
+import ntpath
 import os
 
 __author__ = 'jorgeblasco'
@@ -39,6 +39,14 @@ def get_path_of_method(class_name,method_name, path_list,d):
     for p in path_list:
         src_class_name, src_method_name, src_descriptor =  p.get_src(d.get_class_manager())
         if src_method_name == method_name and src_class_name == class_name:
+            return p
+    return None
+
+def is_path_of_method_in_package(class_name,method_name, path_list,d):
+    for p in path_list:
+        src_class_name, src_method_name, src_descriptor =  p.get_src(d.get_class_manager())
+        package = ntpath.dirname(src_class_name)
+        if (src_method_name == method_name and src_class_name == class_name) or package in class_name:
             return p
     return None
 
