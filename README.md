@@ -48,6 +48,7 @@ Jorge dot Blasco dot 1 at city dot ac dot uk.
 
 
 ## TODOs
+- Increase the tests to cover all the apps in the apk test set
 - Create a streamline version of the tool that does all computing automatically. We need to select a Python interface for SWI-Prolog for that
 - Add more communication channels
 - Improve the string and variable tracking for obtaining intent actions and other required variables
