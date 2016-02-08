@@ -95,7 +95,7 @@ def get_dynamic_receivers(apk,d,dx,include_support=None):
       :rtype: Receiver
     """
     receivers = []
-    instruction_paths = dx.tainted_packages.search_methods("Context", "registerReceiver", ".")
+    instruction_paths = dx.tainted_packages.search_methods(".", "registerReceiver", "\(Landroid\/content\/BroadcastReceiver")
     for path in instruction_paths:
         src_class_name, src_method_name, src_descriptor =  path.get_src(d.get_class_manager())
         if should_analyze(src_class_name,include_support):
