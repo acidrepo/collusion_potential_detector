@@ -78,3 +78,5 @@ venv/lib/python2.7/site-packages/pip/_vendor/distlib/version.py
 
 
 *.txt
+
+pyprolog_test.py
