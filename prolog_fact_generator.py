@@ -19,7 +19,7 @@ __author__ = 'jorgeblasco'
 
 
 
-def generate_prolog_facts(app_folder,result_prefix):
+def generate_facts(app_folder,result_prefix):
     files = get_all_in_dir(app_folder,"*")
     for file in files:
         logger.info("Analyzing file %s",file)
@@ -73,7 +73,7 @@ def main():
         parser.error("incorrect number of arguments")
     if options.verbose:
         logger.setLevel(logging.INFO)
-    generate_prolog_facts(args[0],args[1])
+    generate_facts(args[0],args[1])
 
 if __name__ == "__main__":
     logging.basicConfig()

@@ -36,7 +36,7 @@ def get_implicit_intents(apk,d,dx,include_support=None):
     """
     intents = []
     instruction_paths = dx.tainted_packages.search_methods("Landroid/content/Intent;", "setAction", ".")
-    instruction_paths.extend(dx.tainted_packages.search_methods("Intent", "<init>", "\(Ljava\/lang\/String"))
+    instruction_paths.extend(dx.tainted_packages.search_methods("Landroid/content/Intent;", "<init>", "\(Ljava\/lang\/String"))
     for path in instruction_paths:
         src_class_name, src_method_name, src_descriptor =  path.get_src(d.get_class_manager())
         if should_analyze(src_class_name,include_support):
