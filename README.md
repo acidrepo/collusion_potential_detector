@@ -9,8 +9,10 @@ At the moment, both components must be run separately.
 
 This project relies on Androguard to execute most of the analysis tasks. Specifically, we use Androguard 2.0. That version has a minor bug in 
 function call inside the `dvm.py`. This project links directly to a version with that bug so you don't need to change anything
-
-
+Additionally, SWI-PROLOG is required. Mac installation can be done through brew 
+```
+brew install swipl
+```
 ## Usage
 
 You will need the latests version of Androguard to use the fact extractor. Once you have everyting placed in one folder you can
