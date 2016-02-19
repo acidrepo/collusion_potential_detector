@@ -1,13 +1,4 @@
 /*
-* If an app uses READ EXTERNAL STORAGE it will be capable of reading info through the storage.
-* If it uses WRITE, it will be able to do both. 
-*/
-
-trans(A,'external_storage'):- uses(A,'android.permission.WRITE_EXTERNAL_STORAGE').
-recv(A,'external_storage'):- uses(A,'android.permission.WRITE_EXTERNAL_STORAGE').
-recv(A,'external_storage'):- uses(A,'android.permission.READ_EXTERNAL_STORAGE').
-
-/*
 * There are certain permissions that provide an app with the capability of gathering
 * sensitive information from the device. If any of those permissions is present in
 * an app it means that it will have the capability to read sensitive information.
