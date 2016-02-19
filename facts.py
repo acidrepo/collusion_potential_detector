@@ -1,13 +1,12 @@
 import logging
-import re
+import logging.config
+from sets import Set
 from acid_detectors.implicit_intents import get_implicit_intents, get_dynamic_receivers, get_static_receivers
 from acid_detectors.shared_preferences import get_shared_preferences_writes, get_shared_preferences_reads
 from optparse import OptionParser
-from sets import Set
 import sys
 import os
 import traceback
-import fnmatch
 sys.path.append("androguard-acid/")
 from androguard.misc import AnalyzeAPK
 from androguard.core.androconf import CONF
@@ -18,11 +17,10 @@ from acid_detectors.utils import escape_quotes, get_all_in_dir
 __author__ = 'jorgeblasco'
 
 
-
-def generate_facts(app_folder,result_prefix):
+def generate_facts(app_folder,result_prefix,rules,storage=None):
     files = get_all_in_dir(app_folder,"*")
     for file in files:
-        logger.info("Analyzing file %s",file)
+        logging.info("Analyzing file %s",file)
         try:
             a,d, dx = AnalyzeAPK(file)
             # Create package to file relations
@@ -35,23 +33,23 @@ def generate_facts(app_folder,result_prefix):
                 for permission in permissions:
                     f.write("uses('"+permission[0]+"','"+permission[1]+"').\n")
             # Intents
-            logger.info("Looking for Intent Sends")
+            logging.info("Looking for Intent Sends")
             sends = Set()
             sends.update([(str(a.get_package()),"i_"+intent.action) for intent in get_implicit_intents(a,d,dx)])
             # Shared Prefs
-            logger.info("Looking for Shared Prefs Sends")
+            logging.info("Looking for Shared Prefs Sends")
             sends.update([(str(a.get_package()),"sp_"+shared.package+"_"+shared.preference_file) for shared in get_shared_preferences_writes(a,d,dx)])
             with open(result_prefix+"_trans.txt", 'a') as f:
                 for send in sends:
                     f.write("trans('"+send[0]+"','"+escape_quotes(send[1])+"').\n")
             # Receivers
-            logger.info("Looking for Dynamic Receivers")
+            logging.info("Looking for Dynamic Receivers")
             receives = Set()
             receives.update([(str(a.get_package()),"i_"+receiver.get_action()) for receiver in get_dynamic_receivers(a,d,dx)])
-            logger.info("Looking for Static Receivers")
+            logging.info("Looking for Static Receivers")
             receives.update([(str(a.get_package()),"i_"+receiver.get_action()) for receiver in get_static_receivers(a)])
             # Shared Prefs
-            logger.info("Looking for Shared Prefs Receives")
+            logging.info("Looking for Shared Prefs Receives")
             receives.update([(str(a.get_package()),"sp_"+shared.package+"_"+shared.preference_file) for shared in get_shared_preferences_reads(a,d,dx)])
             with open(result_prefix+"_recv.txt", 'a') as f:
                  for receive in receives:
@@ -59,7 +57,29 @@ def generate_facts(app_folder,result_prefix):
         except:
             print "--Error with file "+file
             traceback.print_exc()
-    logger.info("Results saved in %s files",result_prefix)
+    if rules != "":
+        with open(os.path.splitext(rules)[0]+"_program.pl", 'w') as f:
+            #write packages
+            with open(result_prefix+"_packages.txt", 'r') as to_read:
+                f.writelines(to_read.readlines())
+            #write uses
+            with open(result_prefix+"_uses.txt", 'r') as to_read:
+                f.writelines(to_read.readlines())
+            #write trans
+            with open(result_prefix+"_trans.txt", 'r') as to_read:
+                f.writelines(to_read.readlines())
+                if storage:
+                    f.write("trans(A,'external_storage'):- uses(A,'android.permission.WRITE_EXTERNAL_STORAGE').\n")
+            #write receives
+            with open(result_prefix+"_recv.txt", 'r') as to_read:
+                f.writelines(to_read.readlines())
+                if storage:
+                    f.write("recv(A,'external_storage'):- uses(A,'android.permission.WRITE_EXTERNAL_STORAGE').\n")
+                    f.write("recv(A,'external_storage'):- uses(A,'android.permission.READ_EXTERNAL_STORAGE').\n")
+            with open(rules, 'r') as to_read:
+                f.writelines(to_read.readlines())
+    logging.info("Results saved in %s files",result_prefix)
+    return os.path.splitext(rules)[0]+"_program.pl"
 
 
 def main():
@@ -68,14 +88,25 @@ def main():
     parser.add_option("-v", "--verbose",
                   action="store_true", dest="verbose", default=True,
                   help="make lots of noise [default]")
+    parser.add_option('-r', '--rules',
+                      action="store", dest="rules", default="",
+                      help="Specify a rules file to append the result")
+    parser.add_option("-s", "--storage",
+                  action="store_true", dest="storage", default=None,
+                  help="Adds rules to consider external storage as a possible communication channel")
     (options, args) = parser.parse_args()
     if len(args)!=2:
         parser.error("incorrect number of arguments")
     if options.verbose:
-        logger.setLevel(logging.INFO)
-    generate_facts(args[0],args[1])
+        LOG_CONFIG = {'version':1,
+              'root':{'level':'INFO'}
+                }
+        logging.config.dictConfig(LOG_CONFIG)
+    rule_file = options.rules
+    if rule_file != "":
+        if not os.path.isfile(rule_file):
+            parser.error("Rule file does not exists")
+    generate_facts(args[0],args[1],rules=options.rules,storage=options.storage)
 
 if __name__ == "__main__":
-    logging.basicConfig()
-    logger = logging.getLogger(__name__)
     main()
