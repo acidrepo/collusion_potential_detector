@@ -15,7 +15,7 @@ brew install swipl
 ```
 ## Usage
 
-# Fact Extraction
+### Fact Extraction
 To extract the facts from a set of Android apps that are stored in a folder:
 
 ```
@@ -38,7 +38,7 @@ This tool generates three output files:
 - `rule_file_program.pl`: A Prolog program that includes the facts generated after app analysis and the collusion rules specificed by `rule_file.pl`
 
 
-# Prolog Execution
+### Prolog Execution
 The Prolog program can be executed using the following command
 ```
 python prolog.py [-v] [-f intent_folder] prolog_file collusion kind
@@ -52,7 +52,7 @@ Where:
 
 This tool outputs a list of all collusion app sets found in the `prolog_file`. It includes the apps in the set, and the channels used to communicate
  
-# Executing both tools 
+### Executing both tools 
 
 To execute the fact extraction process and the prolog rules with one command you can:
 ```
