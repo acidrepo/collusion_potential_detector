@@ -1,6 +1,10 @@
 import fnmatch
 import ntpath
+import sys
 import os
+sys.path.append("androguard-acid/")
+sys.path.append("../androguard-acid/")
+import androguard.core.bytecodes.dvm as dvm
 
 __author__ = 'jorgeblasco'
 
@@ -71,10 +75,10 @@ def track_string_value(method,index,variable):
     action = "NotTracedBackPossibleParameter"
     while index >= 0:
         ins = method.get_instruction(index)
-        if variable in ins.get_output() and ins.get_op_value() in [0x1A]:#0x1A is const-string
+        if variable == ins.get_output().split(",")[0].strip() and ins.get_op_value() in [0x1A,0x1B]:#0x1A is const-string or const-string/jumbo
             action = ins.get_output().split(",")[1].strip()
             return action[1:-1]
-        elif variable in ins.get_output() and ins.get_op_value() in [12]:#12 is move-result-object
+        elif variable == ins.get_output().strip() and ins.get_op_value() in [12]:#12 is move-result-object
             ins2 = method.get_instruction(index-1)
             if len(ins2.get_output().split(","))==2:
                 action = ins2.get_output().split(",")[1] + action
@@ -85,17 +89,58 @@ def track_string_value(method,index,variable):
             # Stop here
             index = -1
             action = ins.get_output().split(",")[1] + action
-        elif variable in ins.get_output().split(",")[0].strip() and ins.get_op_value() in [0x07, 0x08]:
+        elif variable == ins.get_output().split(",")[0].strip() and ins.get_op_value() in [0x07, 0x08]:
             # Move operation, we just need to track the new variable now.
             variable = ins.get_output().split(",")[1].strip()
-        elif variable in ins.get_output().split(",")[0].strip() and ins.get_op_value() in [0x54]:#taking value from a method call.
+        elif variable == ins.get_output().split(",")[0].strip() and ins.get_op_value() in [0x54]:#taking value from a field call.
             action = ins.get_output().split(",")[2].strip()
-            instance_name = ins.get_output().split(",")[2].strip()
-            action = look_for_put_of_string_instance(method,instance_name)
+            index = -1
+        elif variable == ins.get_output().split(",")[0].strip() and ins.get_op_value() in [0x62]:#sget-object
+            action = ins.get_output().split(",")[1].strip()#Get the variable name
             index = -1
         index -= 1
     return action
 
+
+def track_int_value(method,index,variable):
+    """
+        Tracks back the value of an int variable that has been declared in code
+       If the value cannot be traced back to an integer, it returns the chain
+        of method calls that resulted in that string until initialization of the object
+    :param method: is the method where we are searching
+    :param index: is the next instruction index where to start looking backwards
+    :param variable: is the register name where the int value is placed
+    :return:
+    """
+    int_value = -1
+    while index >= 0:
+        ins = method.get_instruction(index)
+        if variable == ins.get_output().split(",")[0].strip() and ins.get_op_value() in [0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19]:#const instructions
+            if isinstance(ins,dvm.Instruction11n):
+                return int(ins.B)
+            elif isinstance(ins,dvm.Instruction21s):
+                return int(ins.BBBB)
+            elif isinstance(ins,dvm.Instruction31i):
+                return int(ins.BBBBBBBB)
+            else:
+                print "Not controlled"
+                return 0
+        elif variable == ins.get_output().split(",")[0].strip() and ins.get_op_value() in [0x52, 0x53] and ins.get_output().split(" ") == "I":#taking value from a field
+            int_value = ins.get_output().split(",")[2].strip()
+            instance_name = ins.get_output().split(",")[2].strip()
+            int_value = look_for_sput_of_int_instance(method,instance_name)
+            return int(int_value)
+            index = -1
+        index -= 1
+    return int_value
+
+def look_for_sput_of_int_instance(method, instance_name):
+    for m in method.CM.vm.get_methods():
+        for index,i in enumerate(m.get_instructions()):
+            if i.get_op_value() in [0x67,68] and instance_name in i.get_output():
+                string_var = i.get_output().split(",")[0].strip()
+                return track_int_value(m,index,string_var)
+    return instance_name
 
 def look_for_put_of_string_instance(method, instance_name):
     for m in method.CM.vm.get_methods():

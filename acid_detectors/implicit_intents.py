@@ -102,7 +102,12 @@ def get_dynamic_receivers(apk,d,dx,include_support=None):
             method = d.get_method_by_idx(path.src_idx)
             i = method.get_instruction(0,path.idx)
             index =  method.code.get_bc().off_to_pos(path.idx)
-            var = i.get_output().split(",")[2].strip() #The second argument holds the IntentFilter with the action
+            if i.get_op_value() in [0x6E,0x6F,0x72]:#invoke-virtual { parameters }, methodtocall or invoke-super
+                var = i.get_output().split(",")[2].strip() #The second argument holds the IntentFilter with the action
+            elif i.get_op_value() == 0x74:#invoke-virtual/range {vx..vy},methodtocall
+                var = i.get_output().split(",")[0].split(".")[-1]
+            else:
+                print "Error"
             action = track_intent_filter_direct(method,index-1,var)
             intentfilter = IntentFilterAnalysis(action)
             filters = []
@@ -120,48 +125,44 @@ def track_intent_filter_direct(method,index,variable):
     :return:
     """
     action = "notDefinedInMethod"
-    try:
-        while index > 0:
-            ins = method.get_instruction(index)
-            if variable in ins.get_output() and "Landroid/content/IntentFilter;-><init>(Ljava/lang/String;" in ins.get_output():
-                new_var = ins.get_output().split(",")[1].strip()
+    while index > 0:
+        ins = method.get_instruction(index)
+        if variable == ins.get_output().split(",")[0].strip() and "Landroid/content/IntentFilter;-><init>(Ljava/lang/String;" in ins.get_output():
+            new_var = ins.get_output().split(",")[1].strip()
+            action = track_string_value(method,index-1,new_var)
+            return action
+        elif (len(ins.get_output().split(",")) > 1 and variable == ins.get_output().split(",")[1].strip() and ins.get_op_value() in [0x07, 0x08]):#move-objects
+            # Move operation, we just need to track the new variable now.
+            new_var = ins.get_output().split(",")[0].strip()
+            #print "++++"+new_var
+            action2 = track_intent_filter_direct(method,index+1,new_var)
+            if(action2 not in ["notDefinedInMethod", "registerReceiver"]):# it may happen that the same variable is referenced in two register. One leads to nowehere and the other is the correct one.
+                action = action2
+                return action
+        elif (variable == ins.get_output().split(",")[0].strip() and "Landroid/content/IntentFilter;-><init>(Landroid/content/IntentFilter;" in ins.get_output()):
+            # The intent filter is initialized with other intent filter.
+            # We update the register name to look for.
+            #TODO THIS GENERATES FALSE POSITIVES
+            new_var = ins.get_output().split(",")[1].strip()
+            action2 = track_intent_filter_direct(method,index+1,new_var)
+            if(action2 not in ["notDefinedInMethod", "registerReceiver"]):# it may happen that the same variable is referenced in two register. One leads to nowehere and the other is the correct one.
+                action = action2
+                return action
+        elif (variable == ins.get_output().split(",")[0].strip() and "addAction" in ins.get_output()):
+            # There is an addAction that declares the action
+            # We need to look for its value
+            new_var = ins.get_output().split(",")[1].strip()
+            if "p" in new_var:# the varaible comes from a method parameter
+                action = "MethodParameter"
+                return action
+            else:
                 action = track_string_value(method,index-1,new_var)
                 return action
-            elif (variable in ins.get_output().split(",")[1].strip() and ins.get_op_value() in [0x07, 0x08]):
-                # Move operation, we just need to track the new variable now.
-                new_var = ins.get_output().split(",")[0].strip()
-                #print "++++"+new_var
-                action2 = track_intent_filter_direct(method,index+1,new_var)
-                if(action2 not in ["notDefinedInMethod", "registerReceiver"]):# it may happen that the same variable is referenced in two register. One leads to nowehere and the other is the correct one.
-                    action = action2
-                    return action
-            elif (variable in ins.get_output().split(",")[0].strip() and "Landroid/content/IntentFilter;-><init>(Landroid/content/IntentFilter;" in ins.get_output()):
-                # The intent filter is initialized with other intent filter.
-                # We update the register name to look for.
-                #TODO THIS GENERATES FALSE POSITIVES
-                new_var = ins.get_output().split(",")[1].strip()
-                action2 = track_intent_filter_direct(method,index+1,new_var)
-                if(action2 not in ["notDefinedInMethod", "registerReceiver"]):# it may happen that the same variable is referenced in two register. One leads to nowehere and the other is the correct one.
-                    action = action2
-                    return action
-            elif (variable in ins.get_output() and "addAction" in ins.get_output()):
-                # There is an addAction that declares the action
-                # We need to look for its value
-                new_var = ins.get_output().split(",")[1].strip()
-                if "p" in new_var:# the varaible comes from a method parameter
-                    action = "MethodParameter"
-                    return action
-                else:
-                    action = track_string_value(method,index-1,new_var)
-                    return action
-            elif (variable in ins.get_output().split(",")[0].strip() and ins.get_op_value() in [0x54]):#taking value from a method call.
-                action = ins.get_output().split(",")[2].strip()
-                return action
-            elif "registerReceiver" in ins.get_output():
-                action = "registerReceiverFoundWithouBeingAbleToTrackParameters"
-                return action
-            index -= 1
-    except IndexError:
-        #Fail gently. beginning of the array reached
-        return action
+        elif (variable == ins.get_output().split(",")[0].strip() and ins.get_op_value() in [0x54]):#taking value from a method call.
+            action = ins.get_output().split(",")[2].strip()
+            return action
+        elif "registerReceiver" in ins.get_output():
+            action = "registerReceiverFoundWithouBeingAbleToTrackParameters"
+            return action
+        index -= 1
     return action
