@@ -69,8 +69,7 @@ def communication_channel(app_set,rule_file):
     return ast.literal_eval(channel_list)
 
 
-def filter_intents(rule_file,intent_filters_folder):
-    filtered_file = "filtered_file"
+def filter_intents_by_folder(rule_file,intent_filters_folder,filtered_file):
     files = get_all_in_dir(intent_filters_folder,"*")
     lines_to_remove = []
     for file in files:
@@ -82,6 +81,17 @@ def filter_intents(rule_file,intent_filters_folder):
             final_lines = [rule for rule in rule_lines if len([line for line in lines_to_remove if line in rule])==0]
             f.writelines(final_lines)
     return filtered_file
+
+def filter_intents_by_file(file,intent_filters_file,filtered_file_name):
+    lines_to_remove = []
+    with open(intent_filters_file,'r') as r:
+        lines_to_remove.extend([line[:-1] for line in r.readlines()])
+    with open(filtered_file_name,'w') as f:
+        with open(file,'r') as rulef:
+            rule_lines = rulef.readlines()
+            final_lines = [rule for rule in rule_lines if len([line for line in lines_to_remove if line in rule])==0]
+            f.writelines(final_lines)
+    return filtered_file_name
 
 
 

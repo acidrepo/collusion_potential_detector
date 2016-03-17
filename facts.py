@@ -1,3 +1,5 @@
+from __future__ import division
+from collections import Counter
 import logging
 import logging.config
 from sets import Set
@@ -19,6 +21,9 @@ __author__ = 'jorgeblasco'
 
 def generate_facts(app_folder,result_prefix,rules,storage=None):
     files = get_all_in_dir(app_folder,"*")
+    send_intent_actions_stats = Counter()
+    recv_intent_actions_stats = Counter()
+    len_files = 0
     for file in files:
         logging.info("Analyzing file %s",file)
         try:
@@ -36,6 +41,7 @@ def generate_facts(app_folder,result_prefix,rules,storage=None):
             logging.info("Looking for Intent Sends")
             sends = Set()
             sends.update([(str(a.get_package()),"i_"+intent.action) for intent in get_implicit_intents(a,d,dx)])
+            send_intent_actions_stats.update([send[1] for send in sends])
             # Shared Prefs
             logging.info("Looking for Shared Prefs Sends")
             sends.update([(str(a.get_package()),"sp_"+shared.package+"_"+shared.preference_file) for shared in get_shared_preferences_writes(a,d,dx)])
@@ -48,12 +54,14 @@ def generate_facts(app_folder,result_prefix,rules,storage=None):
             receives.update([(str(a.get_package()),"i_"+receiver.get_action()) for receiver in get_dynamic_receivers(a,d,dx)])
             logging.info("Looking for Static Receivers")
             receives.update([(str(a.get_package()),"i_"+receiver.get_action()) for receiver in get_static_receivers(a)])
+            recv_intent_actions_stats.update([receive[1] for receive in receives])
             # Shared Prefs
             logging.info("Looking for Shared Prefs Receives")
             receives.update([(str(a.get_package()),"sp_"+shared.package+"_"+shared.preference_file) for shared in get_shared_preferences_reads(a,d,dx)])
             with open(result_prefix+"_recv.txt", 'a') as f:
                  for receive in receives:
                     f.write("recv('"+receive[0]+"','"+escape_quotes(receive[1])+"').\n")
+            len_files += 1
         except:
             print "--Error with file "+file
             traceback.print_exc()
@@ -78,6 +86,22 @@ def generate_facts(app_folder,result_prefix,rules,storage=None):
                     f.write("recv(A,'external_storage'):- uses(A,'android.permission.READ_EXTERNAL_STORAGE').\n")
             with open(rules, 'r') as to_read:
                 f.writelines(to_read.readlines())
+    with open(result_prefix+"_intent_send_stats",'w') as send_stats_file:
+        send_stats_file.write("**** Results for send intent analysis ****\n")
+        send_stats_file.write("Files analized: ")
+        send_stats_file.write(str(len_files))
+        send_stats_file.write("\n")
+        for send_stat in send_intent_actions_stats.most_common():
+            freq = send_stat[1]/len_files
+            send_stats_file.write(send_stat[0]+", "+"{0:.2f}".format(round(freq,2))+", "+str(send_stat[1])+"\n")
+    with open(result_prefix+"_intent_recv_stats",'w') as recv_stats_file:
+        recv_stats_file.write("**** Results for send intent analysis ****\n")
+        recv_stats_file.write("Files analized: ")
+        recv_stats_file.write(str(len_files))
+        recv_stats_file.write("\n")
+        for recv_stat in recv_intent_actions_stats.most_common():
+            freq = recv_stat[1]/len_files
+            recv_stats_file.write(recv_stat[0]+", "+"{0:.2f}".format(round(freq,2))+", "+str(recv_stat[1])+"\n")
     logging.info("Results saved in %s files",result_prefix)
     return os.path.splitext(rules)[0]+"_program.pl"
 
