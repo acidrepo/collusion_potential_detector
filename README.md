@@ -7,7 +7,7 @@ Both components can be run consecutively or separately.
 
 ## Requirements
 
-This project relies on Androguard to execute most of the analysis tasks. Specifically, we use Androguard 2.0. That version has a minor bug in 
+Requires Python 2.7. This project relies on Androguard to execute most of the analysis tasks. Specifically, we use Androguard 2.0. That version has a minor bug in 
 function call inside the `dvm.py`. This project links directly to a version with that bug so you don't need to change anything
 Additionally, the tool uses the comman line SWI-Prolog implementation. In a mac, it can be installed using brew: 
 ```
