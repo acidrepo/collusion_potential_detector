@@ -24,46 +24,53 @@ def generate_facts(app_folder,result_prefix,rules,storage=None):
     send_intent_actions_stats = Counter()
     recv_intent_actions_stats = Counter()
     len_files = 0
+    is_apk = None
     for file in files:
         logging.info("Analyzing file %s",file)
         try:
             a,d, dx = AnalyzeAPK(file)
+            is_apk = True
             # Create package to file relations
-            with open(result_prefix+"_packages.txt", 'a') as f:
-                f.write("package('"+a.get_package()+"','"+ntpath.basename(file)+"').\n")
-            # Permissions
-            permissions = []
-            permissions.extend([(str(a.get_package()), permission) for permission in a.get_permissions()])
-            with open(result_prefix+"_uses.txt", 'a') as f:
-                for permission in permissions:
-                    f.write("uses('"+permission[0]+"','"+permission[1]+"').\n")
-            # Intents
-            logging.info("Looking for Intent Sends")
-            sends = Set()
-            sends.update([(str(a.get_package()),"i_"+intent.action) for intent in get_implicit_intents(a,d,dx)])
-            send_intent_actions_stats.update([send[1] for send in sends])
-            # Shared Prefs
-            logging.info("Looking for Shared Prefs Sends")
-            sends.update([(str(a.get_package()),"sp_"+shared.package+"_"+shared.preference_file) for shared in get_shared_preferences_writes(a,d,dx)])
-            with open(result_prefix+"_trans.txt", 'a') as f:
-                for send in sends:
-                    f.write("trans('"+send[0]+"','"+escape_quotes(send[1])+"').\n")
-            # Receivers
-            logging.info("Looking for Dynamic Receivers")
-            receives = Set()
-            receives.update([(str(a.get_package()),"i_"+receiver.get_action()) for receiver in get_dynamic_receivers(a,d,dx)])
-            logging.info("Looking for Static Receivers")
-            receives.update([(str(a.get_package()),"i_"+receiver.get_action()) for receiver in get_static_receivers(a)])
-            recv_intent_actions_stats.update([receive[1] for receive in receives])
-            # Shared Prefs
-            logging.info("Looking for Shared Prefs Receives")
-            receives.update([(str(a.get_package()),"sp_"+shared.package+"_"+shared.preference_file) for shared in get_shared_preferences_reads(a,d,dx)])
-            with open(result_prefix+"_recv.txt", 'a') as f:
-                 for receive in receives:
-                    f.write("recv('"+receive[0]+"','"+escape_quotes(receive[1])+"').\n")
-            len_files += 1
         except:
-            print "--Error with file "+file
+            is_apk = None
+            print "Not valid APK file:  "+file
+        try:
+            if is_apk:
+                with open(result_prefix+"_packages.txt", 'a') as f:
+                    f.write("package('"+a.get_package()+"','"+ntpath.basename(file)+"').\n")
+                # Permissions
+                permissions = []
+                permissions.extend([(str(a.get_package()), permission) for permission in a.get_permissions()])
+                with open(result_prefix+"_uses.txt", 'a') as f:
+                    for permission in permissions:
+                        f.write("uses('"+permission[0]+"','"+permission[1]+"').\n")
+                # Intents
+                logging.info("Looking for Intent Sends")
+                sends = Set()
+                sends.update([(str(a.get_package()),"i_"+intent.action) for intent in get_implicit_intents(a,d,dx)])
+                send_intent_actions_stats.update([send[1] for send in sends])
+                # Shared Prefs
+                logging.info("Looking for Shared Prefs Sends")
+                sends.update([(str(a.get_package()),"sp_"+shared.package+"_"+shared.preference_file) for shared in get_shared_preferences_writes(a,d,dx)])
+                with open(result_prefix+"_trans.txt", 'a') as f:
+                    for send in sends:
+                        f.write("trans('"+send[0]+"','"+escape_quotes(send[1])+"').\n")
+                # Receivers
+                logging.info("Looking for Dynamic Receivers")
+                receives = Set()
+                receives.update([(str(a.get_package()),"i_"+receiver.get_action()) for receiver in get_dynamic_receivers(a,d,dx)])
+                logging.info("Looking for Static Receivers")
+                receives.update([(str(a.get_package()),"i_"+receiver.get_action()) for receiver in get_static_receivers(a)])
+                recv_intent_actions_stats.update([receive[1] for receive in receives])
+                # Shared Prefs
+                logging.info("Looking for Shared Prefs Receives")
+                receives.update([(str(a.get_package()),"sp_"+shared.package+"_"+shared.preference_file) for shared in get_shared_preferences_reads(a,d,dx)])
+                with open(result_prefix+"_recv.txt", 'a') as f:
+                     for receive in receives:
+                        f.write("recv('"+receive[0]+"','"+escape_quotes(receive[1])+"').\n")
+                len_files += 1
+        except:
+            print "Error during analysis:  "+file
             traceback.print_exc()
     if rules != "":
         with open(os.path.splitext(rules)[0]+"_program.pl", 'w') as f:
