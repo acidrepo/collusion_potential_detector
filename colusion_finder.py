@@ -21,6 +21,9 @@ def main():
     parser.add_option("-f", "--filter",
                   action="store", dest="filter", default="",
                   help="Folder with intents to filter out from the fact list")
+    parser.add_option("-l", "--length",
+                  action="store", dest="length", default=0,
+                  help="look for communication paths of length l")
     (options, args) = parser.parse_args()
     if len(args)!=2:
         parser.error("Incorrect number of arguments. You must input the folder where APK files to be analysed are stored and the collusion rule file")
@@ -35,10 +38,13 @@ def main():
     logging.info("Generating Facts")
     prolog_file = generate_facts(app_foler,result_prefix,rules=collusion_rules,storage=options.storage)
     logging.info("Facts generated in temp files")
-    c_sets = Set()
     for collusion_kind in collusion.colluding_predicates:
         logging.info("Getting colluding sets for %s",collusion_kind)
-        c_sets = c_sets.union(collusion_sets(prolog_file,collusion_kind,filter_folder=options.filter))
+        if options.length == 0:
+            c_sets = c_sets.union(collusion_sets(prolog_file,collusion_kind,filter_folder=options.filter,length=0,app=""))
+        else:
+            for i in range(2,options.length):
+                c_sets = c_sets.union(collusion_sets(prolog_file,collusion_kind,filter_folder=options.filter,length=i,app=""))
     print "COLLUSION RESULTS"
     print "*****************"
     print "*****************"

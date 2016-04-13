@@ -27,7 +27,7 @@ def collusion_sets(prolog_file,collusion_kind,filter_folder="",length=0,app=""):
     numbered_packages_file = replace_packages_strings_file(numbered_channels_file)
     mapping_packages = read_mapping_file(numbered_channels_file+collusion.package_numbering_mapping_suffix)
     print "Finding colluding apps"
-    if length >0:
+    if length >1:
         if app != "":
             app_value = mapping_packages.index("'"+app+"'")
             logging.info("Specific length and app")
@@ -35,7 +35,7 @@ def collusion_sets(prolog_file,collusion_kind,filter_folder="",length=0,app=""):
         else:
             logging.info("Specific length ")
             app_sets_list = find_all_colluding_length(numbered_packages_file,collusion_kind,length)
-    elif length ==0:
+    elif length >=0:
         if app != "":
             app_value = mapping_packages.index("'"+app+"'")
             logging.info("Specific app")
