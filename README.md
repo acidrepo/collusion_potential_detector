@@ -41,14 +41,17 @@ This tool generates three output files:
 ### Prolog Execution
 The Prolog program can be executed using the following command
 ```
-python prolog.py [-v] [-f intent_folder] prolog_file collusion kind
+python prolog.py [-v] [-d] [-f intent_folder] [-l length] [-a package] prolog_file collusion kind
 ```
 
 Where:
 - `-v`: Puts the program in verbose mode to provide additional output
+- `-d`: Puts the program in debug mode to provide additional output
 - `-f intent_folder`: Removes all facts related to the intents actions included in the `intent_folder`. Intent actions should can be organized inside different files inside the folder (one intent action per line).
+- `-l length`: Searches only for app sets of length `length`. Useful to reduce the search complexity.
+- `-a package`: Searches only for app sets that start with the app with pacakge name `package`.
 - `prolog_file`: A file including app facts and the collusion rule set. It should be the output prolog file of the `facts.py` execution
-- `collusion_kind`: The kind of collusion that we are looking for. The following values are possible: colluding_info, colluding_money1, colluding_money2, colluding_service
+- `collusion_kind`: The kind of collusion that we are looking for. The following values are possible: 'colluding_info', 'colluding_money1','colluding_money2','colluding_service','colluding_camera','colluding_accounts','colluding_sms'. Others can be defined by modifying the `collusion_rules.pl` file
 
 This tool outputs a list of all collusion app sets found in the `prolog_file`. It includes the apps in the set, and the channels used to communicate
  

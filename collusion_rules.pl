@@ -86,6 +86,7 @@ information_gathering(A):- uses(A,'android.permission.RECORD_AUDIO').
 information_gathering(A):- uses(A,'android.permission.USE_CREDENTIALS').
 information_gathering(A):- uses(A,'android.permission.READ_LOGS').
 information_gathering(A):- uses(A,'android.permission.BIND_NOTIFICATION_LISTENER_SERVICE').
+information_gathering(A):- uses(A,'android.permission.READ_SMS').
 /*
 * There are certain permissions that provide an app with the capability of establishing
 * communication channels to communicate outside the devie. If any of those permissions
@@ -262,21 +263,35 @@ control_service(A) :- uses(A,'android.permission.WRITE_APN_SETTINGS').
 * are returned in P. Apps that encrypt the user information are also included in
 * this predicate.
 */
-colluding_info(A,B,P):- information_gathering(A),outside_communication(B),comm(A,B,P).
+colluding_info(AppA,AppB,Path):- information_gathering(AppA),outside_communication(AppB),comm(AppA,AppB,_,Path,_).
+colluding_info_length(AppA,AppB,Path,Length):- information_gathering(AppA),outside_communication(AppB),comm_length(AppA,AppB,Length,_,Path).
+colluding_accounts(AppA,AppB,Path):- uses(AppA,'android.permission.GET_ACCOUNTS'),outside_communication(AppB),comm(AppA,AppB,_,Path,_).
+colluding_accounts_length(AppA,AppB,Path,Length):- uses(AppA,'android.permission.GET_ACCOUNTS'),outside_communication(AppB),comm_length(AppA,AppB,Length,_,Path).
+colluding_camera(AppA,AppB,Path):- uses(AppA,'android.permission.CAMERA'),outside_communication(AppB),comm(AppA,AppB,_,Path,_).
+colluding_camera_length(AppA,AppB,Path,Length):- uses(AppA,'android.permission.CAMERA'),outside_communication(AppB),comm_length(AppA,AppB,Length,_,Path).
+colluding_contacts(AppA,AppB,Path):- uses(AppA,'android.permission.READ_CONTACTS'),outside_communication(AppB),comm(AppA,AppB,_,Path,_).
+colluding_contacts(AppA,AppB,Path):- uses(AppA,'android.permission.WRITE_CONTACTS'),outside_communication(AppB),comm(AppA,AppB,_,Path,_).
+colluding_contacts_length(AppA,AppB,Path,Length):- uses(AppA,'android.permission.READ_CONTACTS'),outside_communication(AppB),comm_length(AppA,AppB,Length,_,Path).
+colluding_contacts_length(AppA,AppB,Path,Length):- uses(AppA,'android.permission.WRITE_CONTACTS'),outside_communication(AppB),comm_length(AppA,AppB,Length,_,Path).
+colluding_sms(AppA,AppB,Path):- uses(AppA,'android.permission.READ_SMS'),outside_communication(AppB),comm(AppA,AppB,_,Path,_).
+colluding_sms_length(AppA,AppB,Path,Length):- uses(AppA,'android.permission.READ_SMS'),outside_communication(AppB),comm_length(AppA,AppB,Length,_,Path).
 
 /*
 * Apps that charge the user with something and take the information from other apps.
 */
-colluding_money1(A,B,P):- money(B),comm(A,B,P).
+colluding_money1(AppA,AppB,Path):- money(AppB),comm(AppA,AppB,_,Path,_).
+colluding_money1_length(AppA,AppB,Path,Length):- money(AppB),comm_length(AppA,AppB,Length,_,Path).
 /*
-* Similar, but App_b uses the internet connection to obtain the charging inforamtion.
+* Similar, but App_b uses the internet connection to obtain the charging information.
 */
-colluding_money2(A,B,P):- money(B),outside_communication(A),comm(A,B,P).
+colluding_money2(AppA,AppB,Path):- money(AppB),outside_communication(AppA),comm(AppA,AppB,_,Path,_).
+colluding_money2_length(AppA,AppB,Path,Length):- money(AppB),outside_communication(AppA),comm_length(AppA,AppB,Length,_,Path).
 /*
 * An app that acts as a bot and another app that receives the commands from the C&C
 * server. This also includes the case of ransom apps.
 */
-colluding_service(A,B,P):- control_service(B),outside_communication(A),comm(A,B,P).
+colluding_service(AppA,AppB,Path):- control_service(AppB),outside_communication(AppA),comm(AppA,AppB,_,Path,_).
+colluding_service_length(AppA,AppB,Path,Length):- control_service(AppB),outside_communication(AppA),comm_length(AppA,AppB,Length,_,Path).
 
 colluding(A,B,P):- colluding_info(A,B,P).
 colluding(A,B,P):- colluding_money1(A,B,P).
@@ -284,20 +299,79 @@ colluding(A,B,P):- colluding_money2(A,B,P).
 colluding(A,B,P):- colluding_service(A,B,P).
 
 
-/* A is an app, B is another app, [] is the communication path (in apps) between A and B including them */
+/**
+ *  comm(AppA,AppB,Visited,Path,Length) Gets the paths between AppA and AppB. The rest of the
+ *  path is stored in Path. Visited is used to save the places already visited to avoid cycles
+*/
+comm(AppA,AppB,_,[],2) :-			% AppA and AppB communicate
+	trans(AppA,Channel),				% AppA sends something through Channel
+	recv(AppB,Channel), 				% AppB recevies something through the same Channel
+	AppA\=AppB.							% We avoid intra-app communication
+comm(AppA,AppB,[],[AppD|Rest],Length) :- % AppA and AppB communicate through [AppD|Rest]
+	trans(AppA,Channel),				% First AppA with AppD
+	recv(AppD,Channel),
+	AppA\=AppD,
+	comm(AppD,AppB,[AppA],Rest,PrevLength), 	% and AppD with AppB through Rest. We have visited AppA
+	Length is PrevLength + 1,
+	AppA\=AppB.							% Check that the path doesn't finish in the same app
+comm(AppA,AppB,Visited,[AppD|Rest],Length) :- 	% AppA and AppB communicate through [AppD|Rest] and with Visited apps
+	trans(AppA,Channel),					% First AppA with AppD
+	recv(AppD,Channel),
+	AppA\=AppD,
+	nonmember(AppD,Visited),				% We check that the app that is going to be put in the path has not been visited before
+	comm(AppD,AppB,[AppA|Visited],Rest,PrevLength), % AppD and AppB communicate trhough Rest and updated visited apps
+	Length is PrevLength + 1,
+	AppA\=AppB.
 
-comm(A,B,[A|B]) :- trans(A,C),recv(B,C), A\=B.
-comm(A,B,[A|[L|B]]) :- trans(A,C),recv(D,C), A\=D,comm(D,B,[L|B]), A\=B,not_member(A,L).
+/**
+ *  comm_length(AppA,AppB,Visited,Path,Length) Gets the paths between AppA and AppB. The rest of the
+ *  path is stored in Path. Visited is used to save the places already visited to avoid cycles
+*/
 
-not_member(_, []) :- !.
-not_member(X,B) :- X \= B.
-not_member(X, [Head|Tail]) :- X \= Head,not_member(X, Tail).
+comm_length(AppA,AppB,2,_,[]) :-			% AppA and AppB communicate
+	trans(AppA,Channel),				% AppA sends something through Channel
+	recv(AppB,Channel), 				% AppB recevies something through the same Channel
+	AppA\=AppB.							% We avoid intra-app communication
+comm_length(AppA,AppB,Length,[],[AppD|Rest]) :- % AppA and AppB communicate through [AppD|Rest]
+	Length > 2,
+	trans(AppA,Channel),				% First AppA with AppD
+	recv(AppD,Channel),
+	AppA\=AppD,
+	PrevLength is Length -1,
+	comm_length(AppD,AppB,PrevLength,[AppA],Rest), 	% and AppD with AppB through Rest. We have visited AppA
+	AppA\=AppB.							% Check that the path doesn't finish in the same app
+comm_length(AppA,AppB,Length,Visited,[AppD|Rest]) :- 	% AppA and AppB communicate through [AppD|Rest] and with Visited apps
+	Length > 2,
+	trans(AppA,Channel),					% First AppA with AppD
+	recv(AppD,Channel),
+	AppA\=AppD,
+	nonmember(AppD,Visited),				% We check that the app that is going to be put in the path has not been visited before
+	PrevLength is Length -1,
+	comm_length(AppD,AppB,PrevLength,[AppA|Visited],Rest), % AppD and AppB communicate trhough Rest and updated visited apps
+	AppA\=AppB.
 
-/* A is an app, B is another app, [C] is the communication path (in communication channels) between A and B including them */
 
-channel([A|B],[C]) :- trans(A,C),recv(B,C), A\=B.
-channel([A|[D|B]],[C|K]) :- trans(A,C),recv(D,C), A\=D,channel([D|B],K).
+nonmember(Arg,[Arg|_]) :-
+        !,
+        fail.
+nonmember(Arg,[_|Tail]) :-
+        !,
+        nonmember(Arg,Tail).
+nonmember(_,[]).
+nonmember(A,B) :- A\= B.
 
+/**
+ *  channel(AppA,AppB,Path,Channel) Gets the channels between AppA and AppB through path.
+*/
+
+channel(AppA,AppB,[],Channel) :-		% When there are only two apps
+	trans(AppA,Channel),
+	recv(AppB,Channel),
+	AppA\=AppB.
+channel(AppA,AppB,[AppD|Rest],[Channel|Channels]) :-
+	trans(AppA,Channel),				% First AppA with AppD
+	recv(AppD,Channel),
+	channel(AppD,AppB,Rest,Channels). 	% and AppD with AppB through Rest. We have visited AppA
 
 
 

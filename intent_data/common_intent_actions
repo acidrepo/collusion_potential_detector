@@ -1,3 +1,5 @@
+com.android.vending.INSTALL_REFERRER
+android.provider.Telephony.SMS_RECEIVED
 android.intent.action.MAIN
 android.intent.action.AIRPLANE_MODE
 android.intent.action.APPLICATION_RESTRICTIONS_CHANGED
@@ -108,6 +110,19 @@ android.intent.action.USER_PRESENT
 android.intent.action.VOICE_COMMAND
 android.intent.action.GTALK_CONNECTED
 android.intent.action.GTALK_DISCONNECTED
+android.intent.action.MUSIC_PLAYER'
 com.google.android.gms.common.account.CHOOSE_ACCOUNT
 com.google.android.gms.plus.action.SHARE_GOOGLE
 android.intent.action.MAIN
+com.android.music.musicservicecommand
+com.android.camera.action.CROP
+com.google.android.gms.location.places.ui.PICK_PLACE
+android.speech.action.WEB_SEARCH
+com.android.music.metachanged
+com.google.android.gcm.intent.SEND
+android.service.wallpaper.CROP_AND_SET_WALLPAPER
+android.intent.action.SET_WALLPAPER
+android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED
+android.intent.action.ASSIST
+android.intent.action.BUG_REPORT
+android.media.action.STILL_IMAGE_CAMERA

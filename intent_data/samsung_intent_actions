@@ -120,3 +120,8 @@ i_com.samsung.videohub.widget.what_new
 i_com.samsung.videohub.widget.widget_left
 i_com.samsung.videohub.widget.widget_right
 i_com.samsungimaging.connectionmanager.intent.FROM_CM
+i_com.samsung.radio.action.buy.subscription
+i_com.samsung.radio.action.update.subscription
+i_com.osp.app.signin.action.ADD_SAMSUNG_ACCOUNT
+com.msc.action.samsungaccount.request.BackGroundSignin
+android.intent.action.SAMSUNGACCOUNT_SIGNOUT_COMPLETED

@@ -1,3 +1,11 @@
 com.google.android.c2dm.intent.REGISTRATION
 com.google.android.gms.common.oob.OOB_SIGN_UP
 com.google.android.c2dm.intent.RECEIVE
+com.google.analytics.RADIO_POWERED
+com.google.android.c2dm.intent.REGISTER
+com.google.android.gcm.intent.RETRY
+i_com.google.android.gms.analytics.ANALYTICS_DISPATCH
+i_com.google.android.gms.location.places.ui.PICK_PLACE
+i_com.google.android.gms.analytics.ANALYTICS_DISPATCH
+com.google.android.apps.plus.action.VIEW_LOCAL_PLUS_PAGE_ABOUT
+com.google.android.libraries.social.ingest.action.USB_PERMISSION
