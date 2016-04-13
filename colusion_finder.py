@@ -38,6 +38,7 @@ def main():
     logging.info("Generating Facts")
     prolog_file = generate_facts(app_foler,result_prefix,rules=collusion_rules,storage=options.storage)
     logging.info("Facts generated in temp files")
+    c_sets = Set()
     for collusion_kind in collusion.colluding_predicates:
         logging.info("Getting colluding sets for %s",collusion_kind)
         if options.length == 0:
