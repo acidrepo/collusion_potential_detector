@@ -121,7 +121,7 @@ def find_package_colluding(rule_file,package,colluding_predicate):
     return parse_returned_app_list(result)
 
 def find_all_colluding_length(rule_file,colluding_predicate,length=2):
-    return find_all_colluding(rule_file,colluding_predicate,"AppA",length)
+    return find_package_colluding(rule_file,colluding_predicate,"AppA",length)
 
 def find_package_colluding_length(rule_file,colluding_predicate,package="AppA",length=2):
     if colluding_predicate not in colluding_predicates:
