@@ -254,6 +254,11 @@ control_service(A) :- uses(A,'android.permission.RESTART_PACKAGES').
 control_service(A) :- uses(A,'android.permission.WRITE_APN_SETTINGS').
 
 
+/* To avoid unnecessary backtracking */
+mon(A) :- money(A),!.
+inf_gath(A):-information_gathering(A),!.
+out_comm(A):-outside_communication(A),!.
+con_ser(A):-control_service(A),!.
 
 /*
 * If there are two apps, App_a and App_b such as App_a gathers information, App_b
@@ -263,35 +268,34 @@ control_service(A) :- uses(A,'android.permission.WRITE_APN_SETTINGS').
 * are returned in P. Apps that encrypt the user information are also included in
 * this predicate.
 */
-colluding_info(AppA,AppB,Path):- information_gathering(AppA),outside_communication(AppB),comm(AppA,AppB,_,Path,_).
-colluding_info_length(AppA,AppB,Path,Length):- information_gathering(AppA),outside_communication(AppB),comm_length(AppA,AppB,Length,_,Path).
-colluding_accounts(AppA,AppB,Path):- uses(AppA,'android.permission.GET_ACCOUNTS'),outside_communication(AppB),comm(AppA,AppB,_,Path,_).
-colluding_accounts_length(AppA,AppB,Path,Length):- uses(AppA,'android.permission.GET_ACCOUNTS'),outside_communication(AppB),comm_length(AppA,AppB,Length,_,Path).
-colluding_camera(AppA,AppB,Path):- uses(AppA,'android.permission.CAMERA'),outside_communication(AppB),comm(AppA,AppB,_,Path,_).
-colluding_camera_length(AppA,AppB,Path,Length):- uses(AppA,'android.permission.CAMERA'),outside_communication(AppB),comm_length(AppA,AppB,Length,_,Path).
-colluding_contacts(AppA,AppB,Path):- uses(AppA,'android.permission.READ_CONTACTS'),outside_communication(AppB),comm(AppA,AppB,_,Path,_).
-colluding_contacts(AppA,AppB,Path):- uses(AppA,'android.permission.WRITE_CONTACTS'),outside_communication(AppB),comm(AppA,AppB,_,Path,_).
-colluding_contacts_length(AppA,AppB,Path,Length):- uses(AppA,'android.permission.READ_CONTACTS'),outside_communication(AppB),comm_length(AppA,AppB,Length,_,Path).
-colluding_contacts_length(AppA,AppB,Path,Length):- uses(AppA,'android.permission.WRITE_CONTACTS'),outside_communication(AppB),comm_length(AppA,AppB,Length,_,Path).
-colluding_sms(AppA,AppB,Path):- uses(AppA,'android.permission.READ_SMS'),outside_communication(AppB),comm(AppA,AppB,_,Path,_).
-colluding_sms_length(AppA,AppB,Path,Length):- uses(AppA,'android.permission.READ_SMS'),outside_communication(AppB),comm_length(AppA,AppB,Length,_,Path).
+colluding_info(AppA,AppB,Path):- information_gathering(AppA),comm(AppA,AppB,_,Path,_),out_comm(AppB).
+colluding_info_length(AppA,AppB,Path,Length):- information_gathering(AppA),comm_length(AppA,AppB,Length,_,Path),out_comm(AppB).
+colluding_accounts(AppA,AppB,Path):- uses(AppA,'android.permission.GET_ACCOUNTS'),comm(AppA,AppB,_,Path,_),out_comm(AppB).
+colluding_accounts_length(AppA,AppB,Path,Length):- uses(AppA,'android.permission.GET_ACCOUNTS'),comm_length(AppA,AppB,Length,_,Path),out_comm(AppB).
+colluding_camera(AppA,AppB,Path):- uses(AppA,'android.permission.CAMERA'),comm(AppA,AppB,_,Path,_),out_comm(AppB).
+colluding_camera_length(AppA,AppB,Path,Length):- uses(AppA,'android.permission.CAMERA'),comm_length(AppA,AppB,Length,_,Path),out_comm(AppB).
+colluding_contacts(AppA,AppB,Path):- uses(AppA,'android.permission.READ_CONTACTS'),comm(AppA,AppB,_,Path,_),out_comm(AppB).
+colluding_contacts(AppA,AppB,Path):- uses(AppA,'android.permission.WRITE_CONTACTS'),comm(AppA,AppB,_,Path,_),out_comm(AppB).
+colluding_contacts_length(AppA,AppB,Path,Length):- uses(AppA,'android.permission.READ_CONTACTS'),comm_length(AppA,AppB,Length,_,Path),out_comm(AppB).
+colluding_sms(AppA,AppB,Path):- uses(AppA,'android.permission.READ_SMS'),comm(AppA,AppB,_,Path,_),out_comm(AppB).
+colluding_sms_length(AppA,AppB,Path,Length):- uses(AppA,'android.permission.READ_SMS'),comm_length(AppA,AppB,Length,_,Path),out_comm(AppB).
 
 /*
 * Apps that charge the user with something and take the information from other apps.
 */
-colluding_money1(AppA,AppB,Path):- money(AppB),comm(AppA,AppB,_,Path,_).
-colluding_money1_length(AppA,AppB,Path,Length):- money(AppB),comm_length(AppA,AppB,Length,_,Path).
+colluding_money1(AppA,AppB,Path):- mon(AppB),comm(AppA,AppB,_,Path,_).
+colluding_money1_length(AppA,AppB,Path,Length):- mon(AppB),comm_length(AppA,AppB,Length,_,Path).
 /*
 * Similar, but App_b uses the internet connection to obtain the charging information.
 */
-colluding_money2(AppA,AppB,Path):- money(AppB),outside_communication(AppA),comm(AppA,AppB,_,Path,_).
-colluding_money2_length(AppA,AppB,Path,Length):- money(AppB),outside_communication(AppA),comm_length(AppA,AppB,Length,_,Path).
+colluding_money2(AppA,AppB,Path):- mon(AppB),comm(AppA,AppB,_,Path,_),out_comm(AppA).
+colluding_money2_length(AppA,AppB,Path,Length):- mon(AppB),comm_length(AppA,AppB,Length,_,Path),out_comm(AppA).
 /*
 * An app that acts as a bot and another app that receives the commands from the C&C
 * server. This also includes the case of ransom apps.
 */
-colluding_service(AppA,AppB,Path):- control_service(AppB),outside_communication(AppA),comm(AppA,AppB,_,Path,_).
-colluding_service_length(AppA,AppB,Path,Length):- control_service(AppB),outside_communication(AppA),comm_length(AppA,AppB,Length,_,Path).
+colluding_service(AppA,AppB,Path):- con_ser(AppB),comm(AppA,AppB,_,Path,_),out_comm(AppA).
+colluding_service_length(AppA,AppB,Path,Length):- con_ser(AppB),comm_length(AppA,AppB,Length,_,Path),out_comm(AppA).
 
 colluding(A,B,P):- colluding_info(A,B,P).
 colluding(A,B,P):- colluding_money1(A,B,P).

@@ -61,31 +61,62 @@ def get_implicit_intents(apk,d,dx,include_support=None):
     return intents
 
 
+def get_not_exported_static_receivers(apk):
+    receivers = []
+    manifest = apk.get_AndroidManifest()
+    receiver_list = manifest.getElementsByTagName('receiver')
+    for receiver in receiver_list:
+        if receiver.attributes.has_key("android:exported") and receiver.attributes.getNamedItem("android:exported").value == "false":
+            action_list = receiver.getElementsByTagName('action')
+            for action in action_list:
+                values = action.attributes.values()
+                for val in values:
+                    if 'name' in val.name:
+                        intentfilter = IntentFilterAnalysis(str(val.value))
+                        filters = [intentfilter]
+                        receiver = ReceiverAnalysis(filters)
+                        receivers.append(receiver)
+    activity_list = manifest.getElementsByTagName('activity')
+    for activity in activity_list:
+        if activity.attributes.has_key("android:exported") and activity.attributes.getNamedItem("android:exported").value == "false":
+            action_list = activity.getElementsByTagName('action')
+            for action in action_list:
+                values = action.attributes.values()
+                for val in values:
+                    if 'name' in val.name:
+                        intentfilter = IntentFilterAnalysis(str(val.value))
+                        filters = [intentfilter]
+                        receiver = ReceiverAnalysis(filters)
+                        receivers.append(receiver)
+    return receivers
+
 def get_static_receivers(apk):
     receivers = []
     manifest = apk.get_AndroidManifest()
     receiver_list = manifest.getElementsByTagName('receiver')
     for receiver in receiver_list:
-        action_list = receiver.getElementsByTagName('action')
-        for action in action_list:
-            values = action.attributes.values()
-            for val in values:
-                if 'name' in val.name:
-                    intentfilter = IntentFilterAnalysis(str(val.value))
-                    filters = [intentfilter]
-                    receiver = ReceiverAnalysis(filters)
-                    receivers.append(receiver)
+        if (receiver.attributes.has_key("android:exported") and receiver.attributes.getNamedItem("android:exported").value != "true") or not receiver.attributes.has_key("android:exported"):
+            action_list = receiver.getElementsByTagName('action')
+            for action in action_list:
+                values = action.attributes.values()
+                for val in values:
+                    if 'name' in val.name:
+                        intentfilter = IntentFilterAnalysis(str(val.value))
+                        filters = [intentfilter]
+                        receiver = ReceiverAnalysis(filters)
+                        receivers.append(receiver)
     activity_list = manifest.getElementsByTagName('activity')
     for activity in activity_list:
-        action_list = activity.getElementsByTagName('action')
-        for action in action_list:
-            values = action.attributes.values()
-            for val in values:
-                if 'name' in val.name:
-                    intentfilter = IntentFilterAnalysis(str(val.value))
-                    filters = [intentfilter]
-                    receiver = ReceiverAnalysis(filters)
-                    receivers.append(receiver)
+        if (activity.attributes.has_key("android:exported") and activity.attributes.getNamedItem("android:exported").value != "true") or not activity.attributes.has_key("android:exported"):
+            action_list = activity.getElementsByTagName('action')
+            for action in action_list:
+                values = action.attributes.values()
+                for val in values:
+                    if 'name' in val.name:
+                        intentfilter = IntentFilterAnalysis(str(val.value))
+                        filters = [intentfilter]
+                        receiver = ReceiverAnalysis(filters)
+                        receivers.append(receiver)
     return receivers
 
 def get_dynamic_receivers(apk,d,dx,include_support=None):

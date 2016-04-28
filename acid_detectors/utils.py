@@ -168,3 +168,15 @@ def is_contained_in_strings_of_list(string,list):
             return True
     return None
 
+def remove_duplicate_lines(infilename,outfilename,remove_infile=True):
+    lines_seen = set() # holds lines already seen
+    outfile = open(outfilename, "w")
+    for line in open(infilename, "r"):
+        if line not in lines_seen: # not a duplicate
+            outfile.write(line)
+            lines_seen.add(line)
+    outfile.close()
+    if remove_infile:
+        os.remove(infilename)
+    return True
+

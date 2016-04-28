@@ -3,6 +3,7 @@ from collections import Counter
 import logging
 import logging.config
 from sets import Set
+from acid_detectors import utils
 from acid_detectors.implicit_intents import get_implicit_intents, get_dynamic_receivers, get_static_receivers
 from acid_detectors.shared_preferences import get_shared_preferences_writes, get_shared_preferences_reads
 from optparse import OptionParser
@@ -41,7 +42,7 @@ def generate_facts(app_folder,result_prefix,rules,storage=None):
                 # Permissions
                 permissions = []
                 permissions.extend([(str(a.get_package()), permission) for permission in a.get_permissions()])
-                with open(result_prefix+"_uses.txt", 'a') as f:
+                with open(result_prefix+"_uses_aux.txt", 'a') as f:
                     for permission in permissions:
                         f.write("uses('"+permission[0]+"','"+permission[1]+"').\n")
                 # Intents
@@ -52,7 +53,7 @@ def generate_facts(app_folder,result_prefix,rules,storage=None):
                 # Shared Prefs
                 logging.info("Looking for Shared Prefs Sends")
                 sends.update([(str(a.get_package()),"sp_"+shared.package+"_"+shared.preference_file) for shared in get_shared_preferences_writes(a,d,dx)])
-                with open(result_prefix+"_trans.txt", 'a') as f:
+                with open(result_prefix+"_trans_aux.txt", 'a') as f:
                     for send in sends:
                         f.write("trans('"+send[0]+"','"+escape_quotes(send[1])+"').\n")
                 # Receivers
@@ -65,10 +66,13 @@ def generate_facts(app_folder,result_prefix,rules,storage=None):
                 # Shared Prefs
                 logging.info("Looking for Shared Prefs Receives")
                 receives.update([(str(a.get_package()),"sp_"+shared.package+"_"+shared.preference_file) for shared in get_shared_preferences_reads(a,d,dx)])
-                with open(result_prefix+"_recv.txt", 'a') as f:
+                with open(result_prefix+"_recv_aux.txt", 'a') as f:
                      for receive in receives:
                         f.write("recv('"+receive[0]+"','"+escape_quotes(receive[1])+"').\n")
                 len_files += 1
+                utils.remove_duplicate_lines(result_prefix+"_uses_aux.txt",result_prefix+"_uses.txt",True)
+                utils.remove_duplicate_lines(result_prefix+"_trans_aux.txt",result_prefix+"_trans.txt",True)
+                utils.remove_duplicate_lines(result_prefix+"_recv_aux.txt",result_prefix+"_recv.txt",True)
         except:
             print "Error during analysis:  "+file
             traceback.print_exc()
