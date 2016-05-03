@@ -123,3 +123,7 @@ i_com.facebook.sdk.ACTION_CURRENT_PROFILE_CHANGED
 com.facebook.sdk.ACTION_CURRENT_ACCESS_TOKEN_CHANGED
 com.facebook.rti.fbns.intent.RECEIVE
 com.facebook.GET_PHONE_ID
+com.facebook.sdk.LikeActionController.DID_RESET
+com.facebook.sdk.ACTIVE_SESSION_OPENED
+com.facebook.sdk.APP_EVENTS_FLUSHED
+com.facebook.sdk.APP_EVENTS_FLUSHED

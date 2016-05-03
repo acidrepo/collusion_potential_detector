@@ -126,3 +126,11 @@ android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED
 android.intent.action.ASSIST
 android.intent.action.BUG_REPORT
 android.media.action.STILL_IMAGE_CAMERA
+android.intent.action.DOWNLOAD_COMPLETE
+com.android.vending.billing.IN_APP_NOTIFY
+com.android.vending.billing.InAppBillingService.BIND
+android.intent.action.QUICKBOOT_POWERON
+android.intent.action.DOWNLOAD_COMPLETE
+android.app.action.DEVICE_ADMIN_DISABLE_REQUESTED
+android.provider.Telephony.GSM_SMS_RECEIVED
+android.provider.MediaStore.RECORD_SOUND
