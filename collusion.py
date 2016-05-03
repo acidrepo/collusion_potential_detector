@@ -1,6 +1,6 @@
 import logging
 from sets import Set
-from acid_detectors.utils import get_all_in_dir
+from acid_detectors.utils import get_all_in_dir, swipl_path
 
 __author__ = 'jorgeblasco'
 import re
@@ -87,7 +87,7 @@ def find_comm_length_package(rule_file,package_name="AppA",length=2):
     if not os.path.isfile(rule_file) :
         return None
     logging.info("Finding communications with "+str(package_name))
-    call = ['/usr/local/bin/swipl','-G4g', '-q', '-g', "( \+ comm_length({0},AppB,{1},Visited,Path) -> Ps = [] ; setof(({0},AppB,Path),Visited^comm_length({0},AppB,{1},Visited,Path),Ps)),writeln(Ps),halt".format(package_name,length), "-t", "'halt(1)'", '-s', rule_file]
+    call = [swipl_path(),'-G4g', '-q', '-g', "( \+ comm_length({0},AppB,{1},Visited,Path) -> Ps = [] ; setof(({0},AppB,Path),Visited^comm_length({0},AppB,{1},Visited,Path),Ps)),writeln(Ps),halt".format(package_name,length), "-t", "'halt(1)'", '-s', rule_file]
     result = check_output(call)
     return parse_returned_app_list(result)
 
@@ -95,7 +95,7 @@ def find_all_comm_package(rule_file,package_name):
     if not os.path.isfile(rule_file) :
         return None
     logging.info("Finding communications with "+package_name)
-    call = ['/usr/local/bin/swipl','-G4g', '-q', '-g', "( \+ comm({0},AppB,Visited,Path,Length) -> Ps = [] ; setof(({0},AppB,Path),Visited^Length^comm({0},AppB,Visited,Path,Length),Ps)),writeln(Ps),halt".format(package_name), "-t", "'halt(1)'", '-s', rule_file]
+    call = [swipl_path(),'-G4g', '-q', '-g', "( \+ comm({0},AppB,Visited,Path,Length) -> Ps = [] ; setof(({0},AppB,Path),Visited^Length^comm({0},AppB,Visited,Path,Length),Ps)),writeln(Ps),halt".format(package_name), "-t", "'halt(1)'", '-s', rule_file]
     result = check_output(call)
     return parse_returned_app_list(result)
 
@@ -103,7 +103,7 @@ def find_all_comm(rule_file):
     if not os.path.isfile(rule_file) :
         return None
     logging.info("Executing SWIPL command")
-    call = ['/usr/local/bin/swipl','-G4g', '-q', '-g', "( \+ comm({0},AppB,Visited,Path,Length) -> Ps = [] ; setof((AppA,AppB,Path),Visited^Length^comm(AppA,AppB,Visited,Path,Length),Ps)),writeln(Ps),halt","-t","'halt(1)'", '-s', rule_file]
+    call = [swipl_path(),'-G4g', '-q', '-g', "( \+ comm({0},AppB,Visited,Path,Length) -> Ps = [] ; setof((AppA,AppB,Path),Visited^Length^comm(AppA,AppB,Visited,Path,Length),Ps)),writeln(Ps),halt","-t","'halt(1)'", '-s', rule_file]
     result = check_output(call)
     return parse_returned_app_list(result)
 
@@ -116,7 +116,7 @@ def find_package_colluding(rule_file,package,colluding_predicate):
     if not os.path.isfile(rule_file) :
         return None
     logging.info("Executing SWIPL command")
-    call = ['/usr/local/bin/swipl','-G4g', '-q', '-g', "( \+ {0}({1},AppB,Path) -> Ps = [] ; setof(({1},AppB,Path),{0}({1},AppB,Path),Ps)),writeln(Ps),halt".format(colluding_predicate,package),"-t","'halt(1)'", '-s', rule_file]
+    call = [swipl_path(),'-G4g', '-q', '-g', "( \+ {0}({1},AppB,Path) -> Ps = [] ; setof(({1},AppB,Path),{0}({1},AppB,Path),Ps)),writeln(Ps),halt".format(colluding_predicate,package),"-t","'halt(1)'", '-s', rule_file]
     result = check_output(call)
     return parse_returned_app_list(result)
 
@@ -130,7 +130,7 @@ def find_package_colluding_length(rule_file,colluding_predicate,package="AppA",l
         return None
     colluding_predicate = colluding_predicate+"_length"
     logging.info("Executing SWIPL command")
-    call = ['/usr/local/bin/swipl','-G4g', '-q', '-g', "( \+ {0}({2},AppB,Path,{1}) -> Ps = [] ; setof(({2},AppB,Path),{0}({2},AppB,Path,{1}),Ps)),writeln(Ps),halt".format(colluding_predicate,length,package),"-t","'halt(1)'", '-s', rule_file]
+    call = [swipl_path(),'-G4g', '-q', '-g', "( \+ {0}({2},AppB,Path,{1}) -> Ps = [] ; setof(({2},AppB,Path),{0}({2},AppB,Path,{1}),Ps)),writeln(Ps),halt".format(colluding_predicate,length,package),"-t","'halt(1)'", '-s', rule_file]
     logging.debug("Call is :"+str(call))
     result = check_output(call)
     logging.info("Ids of apps obtained :"+result)
@@ -149,7 +149,7 @@ def communication_channels(rule_file,app_set):
         path_string = "[" + path_string+ "]"
     prolog_command = 'setof(C,channel({0},{1},{2},C),Cs),writeln(Cs),halt'.format(app_a,app_b,path_string)
     logging.debug("Executing :"+prolog_command)
-    call = ["/usr/local/bin/swipl",'-G4g','-q', "-g", prolog_command, "-t","'halt(1)'", "-s", rule_file]
+    call = [swipl_path(),'-G4g','-q', "-g", prolog_command, "-t","'halt(1)'", "-s", rule_file]
     result = check_output(call)
     return parse_returned_channel_list(result)
 

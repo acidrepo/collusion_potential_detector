@@ -180,3 +180,22 @@ def remove_duplicate_lines(infilename,outfilename,remove_infile=True):
         os.remove(infilename)
     return True
 
+def stats_file(infilename,statsfilename):
+    channels = {}
+    for line in open(infilename, "r"):
+        channel = line.split(",")[1][1:-4]
+        if channels.has_key(channel):
+            channels[channel]+=1
+        else:
+            channels[channel]=1
+    with open(statsfilename,'w') as out:
+        for key in channels.keys():
+            out.write("{0},{1}\n".format(key,channels[key]))
+    return statsfilename
+
+def swipl_path():
+    if os.name == 'posix':
+        return '/usr/local/bin/swipl'
+    else:
+        return 'swipl'
+
