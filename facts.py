@@ -77,7 +77,7 @@ def generate_facts(app_folder,result_prefix,rules,storage=None):
             print "Error during analysis:  "+file
             traceback.print_exc()
     if rules != "":
-        with open(os.path.splitext(rules)[0]+"_program.pl", 'w') as f:
+        with open(os.path.splitext(os.path.split(rules)[1])[0]+"_program.pl", 'w') as f:
             #write packages
             with open(result_prefix+"_packages.txt", 'r') as to_read:
                 f.writelines(to_read.readlines())
@@ -114,7 +114,7 @@ def generate_facts(app_folder,result_prefix,rules,storage=None):
             freq = recv_stat[1]/len_files
             recv_stats_file.write(recv_stat[0]+", "+"{0:.2f}".format(round(freq,2))+", "+str(recv_stat[1])+"\n")
     logging.info("Results saved in %s files",result_prefix)
-    return os.path.splitext(rules)[0]+"_program.pl"
+    return os.path.splitext(os.path.split(rules)[1])[0]+"_program.pl"
 
 
 def main():
