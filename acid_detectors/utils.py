@@ -195,7 +195,7 @@ def stats_file(infilename,statsfilename):
 
 def swipl_path():
     if os.name == 'posix':
-        return '/usr/local/bin/swipl'
+        return 'swipl'
     else:
         return 'swipl'
 
