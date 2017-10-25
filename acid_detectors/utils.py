@@ -157,6 +157,15 @@ def get_all_files_in_dir(directory, extension):
             matches.append(os.path.join(root, filename))
     return matches
 
+# Get a list of all directories within a specified directory with a given prefix.
+def get_all_directrories_in_dir(directory, prefix):
+    directories = []
+    for entry in os.listdir(directory) :
+        fullEntry = os.path.join(directory, entry)
+        if os.path.isdir(fullEntry) and entry.startswith(prefix):
+            directories.append(fullEntry)
+    return directories
+
 def escape_quotes(string=""):
     return string.replace("\'",'\\\'')
 
