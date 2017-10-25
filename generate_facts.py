@@ -85,7 +85,7 @@ def write_facts_to_files(app_facts_dict, app_output_dir):
     escaped_package_name = escape_quotes(app_facts_dict['package_name'])
 
     # write packages
-    with open(os.path.join(app_output_dir, "package.pl.partial"), 'w') as f:
+    with open(os.path.join(app_output_dir, "packages.pl.partial"), 'w') as f:
         f.write("package('%s','%s').\n" % (escaped_package_name, escape_quotes(app_facts_dict['app_base_file_name'])))
 
     # write permissions
