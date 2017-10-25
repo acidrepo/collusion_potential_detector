@@ -136,7 +136,7 @@ def main():
                         help="increase output verbosity")
     parser.add_argument("-o", "--output_dir",
                         action="store", dest="output_dir", default=".",
-                        help="set the output directory in which the collusion facts directories will be created. Default is '.'")
+                        help="set the output directory in which the collusion facts directories will be created.  Directory will be created if it does not exist. Default is '.'")
     parser.add_argument("-p", "--prefix",
                         action="store", dest="output_dir_prefix", default="collusion_facts_",
                         help="set output directory prefix used in the naming of the collusion facts directories. Default is 'collusion_facts_'. Note, this can be set to the empty string ''")
