@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import logging
 from acid_detectors.implicit_intents import get_implicit_intents, get_dynamic_receivers, get_static_receivers
 from acid_detectors.shared_preferences import get_shared_preferences_writes, get_shared_preferences_reads
