@@ -6,7 +6,7 @@ sys.path.append("androguard-acid/")
 sys.path.append("../androguard-acid/")
 import androguard.core.bytecodes.dvm as dvm
 
-__author__ = 'jorgeblasco'
+__author__ = "jorgeblasco and Liam O'Reilly"
 
 
 def should_analyze(class_name,include_support=None):
@@ -150,12 +150,11 @@ def look_for_put_of_string_instance(method, instance_name):
                 return track_string_value(m,index,string_var)
     return instance_name
 
-def get_all_in_dir(folder,extension):
+def get_all_files_in_dir(directory, extension):
     matches = []
-    for root, dirnames, filenames in os.walk(folder):
-        for filename in fnmatch.filter(filenames, '*'+extension):
-            if ".DS_Store" not in filename:
-                matches.append(os.path.join(root, filename))
+    for root, dirnames, filenames in os.walk(directory):
+        for filename in fnmatch.filter(filenames, '*' + extension):
+            matches.append(os.path.join(root, filename))
     return matches
 
 def escape_quotes(string=""):
