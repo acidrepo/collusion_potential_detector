@@ -85,23 +85,23 @@ def write_facts_to_files(app_facts_dict, app_output_dir):
     escaped_package_name = escape_quotes(app_facts_dict['package_name'])
 
     # write packages
-    with open(os.path.join(app_output_dir, "package.txt"), 'w') as f:
+    with open(os.path.join(app_output_dir, "package.pl.partial"), 'w') as f:
         f.write("package('%s','%s').\n" % (escaped_package_name, escape_quotes(app_facts_dict['app_base_file_name'])))
 
     # write permissions
-    with open(os.path.join(app_output_dir, "uses.txt"), 'w') as f:
+    with open(os.path.join(app_output_dir, "uses.pl.partial"), 'w') as f:
         for permission in app_facts_dict['permissions']:
             f.write("uses('%s','%s').\n" % (escaped_package_name, escape_quotes(permission)))
 
     # write sends
-    with open(os.path.join(app_output_dir, "sends.txt"), 'w') as f:
+    with open(os.path.join(app_output_dir, "sends.pl.partial"), 'w') as f:
         for intent in app_facts_dict['send_intents']:
             f.write("trans('%s','%s').\n" % (escaped_package_name, escape_quotes(intent)))
         for shared_pref in app_facts_dict['send_shared_prefs']:
             f.write("trans('%s','%s').\n" % (escaped_package_name, escape_quotes(shared_pref)))
 
     # write receivers
-    with open(os.path.join(app_output_dir, "receives.txt"), 'w') as f:
+    with open(os.path.join(app_output_dir, "receives.pl.partial"), 'w') as f:
         for intent in app_facts_dict['recv_intents']:
             f.write("recv('%s','%s').\n" % (escaped_package_name, escape_quotes(intent)))
         for shared_pref in app_facts_dict['recv_shared_prefs']:
