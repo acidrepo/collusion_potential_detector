@@ -12,7 +12,7 @@ Additionally, the tool uses the comman line SWI-Prolog implementation.
 
 ## Running the Tools
 
-### Step 1: Generation of Collusion Facts.
+### Step 1: Generation of Collusion Facts
 The first step is to generate the collusion facts for a set of apps. The tool will extract the facts and write them to a directory per analysed app.
 
 For exact usage of the tool run:
