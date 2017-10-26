@@ -66,7 +66,7 @@ def produce_prolog_program(collusion_fact_directories, output_file_name, prolog_
 
 
 def main():
-    default_prolog_rules = os.path.join(os.path.dirname(os.path.realpath(__file__)), "prolog_default_collusion_rules.pl")
+    default_prolog_rules = os.path.join(os.path.dirname(os.path.realpath(__file__)), "default_prolog_collusion_rules.pl")
 
     parser = argparse.ArgumentParser(description="Collusion prolog generator, version %s. Produce the prolog filter program from the previously generated collusion fact directories. Combines the generated collusion fact directories (produced by the generate_facts program) into a prolog program (which the detect_collusion program will use)." % VERSION_NUMBER)
     parser.add_argument("-v", "--verbose",
