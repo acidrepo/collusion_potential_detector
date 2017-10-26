@@ -86,7 +86,7 @@ def main():
                         help="set the prolog rule file that contains the collusion rules that will be used. The default will be the rules that come packaged as default. Only change this if you know what you are doing.")
     parser.add_argument("-s", "--storage",
                         action="store_true", dest="external_storage_enabled", default=False,
-                        help="Adds rules to consider external storage as a possible communication channel")
+                        help="Adds rules to consider external storage as a potential communication channel")
 
     args = parser.parse_args()
 

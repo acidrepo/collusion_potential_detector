@@ -2,77 +2,50 @@
 
 This tool is a first approximation to detecting app collusion potential. The tool uses androguard to extract facts about
 app communication and used permissions. Extracted facts and a set of prolog rules can be used later to detect the collusion
-potential between the apps in the analysed set. The tool is split in two components: the fact generator and the prolog program
-Both components can be run consecutively or separately.
+potential between the apps in the analysed set. The tool is split in three components: the fact generator, the prolog generator and the detection tool (that executed the prolog program). These programs should be run in sequence.
 
 ## Requirements
 
 Requires Python 2.7. This project relies on Androguard to execute most of the analysis tasks. Specifically, we use Androguard 2.0. That version has a minor bug in 
-function call inside the `dvm.py`. This project links directly to a version with that bug so you don't need to change anything
-Additionally, the tool uses the comman line SWI-Prolog implementation. In a mac, it can be installed using brew (or alternativley macports):
-```
-brew install swipl
-```
-## Usage
+function call inside the `dvm.py`. This project links directly to a version with that bug fixed so you don't need to change anything
+Additionally, the tool uses the comman line SWI-Prolog implementation.
 
-### Fact Extraction
-To extract the facts from a set of Android apps that are stored in a folder:
+### Step 1: Generation of Collusion Facts.
+The first step is to generate the collusion facts for a set of apps. The tool will extract the facts and write them to a directory per analysed app.
+
+For exact usage of the tool run:
 
 ```
-python facts.py [-v] [-r rule_file] [-s]  app_folder result_prefix
+generate_facts --help
 ```
 
-Where:
-- `-v`: Makes the tool give information about the fact extraction process
-- `-r rule_file`: append the `rule_file` to the list of generated facts for its usage in swi-prolog. In our case, collusion rules are defined in `collusion_rules.pl`
-- `-s`: Add rules to account external storage as a possible communication channel.  
-- `app_folder`: Specifies the folder where the apps to be analysed are stored
-- `result_prefix`: Is the prefix that will be added to all output files
-
-This tool generates three output files:
-- `result_prefix_uses.txt`: Prolog facts about permissions used by the apps
-- `result_prefix_trans.txt`: Prolog facts about the communication channels used by the apps to send information to other apps
-- `result_prefix_recv.txt`: Prolog facts about the communication channels used by the apps to receive information from other apps
-- `result_prefix_intent_send_stats`: Stats about the actions detected by intents used to send information to other apps/components
-- `result_prefix_intent_recv_stats`: Stats about the actions detected by intent filters used to receive information from other apps/components
-- `rule_file_program.pl`: A Prolog program that includes the facts generated after app analysis and the collusion rules specificed by `rule_file.pl`
+This tool generates various output files per analysed apk file:
+- `packages.pl.partial: Prolog facts about the apk package name.
+- `uses.pl.partial`: Prolog facts about permissions used by the apps.
+- `trans.pl.partial`: Prolog facts about the communication channels used by the apps to send information to other apps.
+- `recv.pl.partial`: Prolog facts about the communication channels used by the apps to receive information from other apps.
 
 
-### Prolog Execution
-The Prolog program can be executed using the following command
+### Step 2: Generation of Prolog Program
+The Prolog progam is generated after the collusion fact directories have been created in Step 1.
+
+For exact usage of the tool run:
+
 ```
-python prolog.py [-v] [-d] [-f intent_folder] [-l length] [-a package] prolog_file collusion kind
+generate_prolog --help
 ```
 
-Where:
-- `-v`: Puts the program in verbose mode to provide additional output
-- `-d`: Puts the program in debug mode to provide additional output
-- `-f intent_folder`: Removes all facts related to the intents actions included in the `intent_folder`. Intent actions should can be organized inside different files inside the folder (one intent action per line).
-- `-l length`: Searches only for app sets of length `length`. Useful to reduce the search complexity.
-- `-a package`: Searches only for app sets that start with the app with pacakge name `package`.
-- `prolog_file`: A file including app facts and the collusion rule set. It should be the output prolog file of the `facts.py` execution
-- `collusion_kind`: The kind of collusion that we are looking for. The following values are possible: 'colluding_info', 'colluding_money1','colluding_money2','colluding_service','colluding_camera','colluding_accounts','colluding_sms'. Others can be defined by modifying the `collusion_rules.pl` file
+### Step 3: Detection of Collusion 
+The final step is to execute the Prolog program generated in Step 2. A python program controls the execution of the Prolog progam and acts as a wrapper.
 
-This tool outputs a list of all collusion app sets found in the `prolog_file`. It includes the apps in the set, and the channels used to communicate
+For exact usage of the tool run:
+
+```
+detect_collusion --help
+```
+
+This tool outputs a list of all collusion app sets found in the `prolog_file`. It includes the apps in the set, and the channels used to communicate.
  
-### Executing both tools 
-
-To execute the fact extraction process and the prolog rules with one command you can:
-```
-python collusion_finder.py [-v] [-s] [-f intent_folder]  app_folder rule_file
-```
-
-Where:
-- `-v`: Puts the program in verbose mode to provide additional output
-- `-s`: Add rules to account external storage as a possible communication channel.
-- `-f intent_folder`: Removes all facts related to the intents actions included in the `intent_folder`. Intent actions should can be organized inside different files inside the folder (one intent action per line).
-- `app_folder`: Specifies the folder where the apps to be analysed are stored
-- `rule_file`: The file with the collusion rules. In our case, collusion rules are defined in `collusion_rules.pl`
-
-
-This tool outputs the found colluding app sents, including the communication channels used. All the auxiliary files required during execution, except the prolog program, are deleted after execution
-
-
 ## Testing
 
 To test the fact extraction process you can use py.test

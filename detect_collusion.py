@@ -75,7 +75,8 @@ def main():
                         help="detect collusion only for app sets that start with the app with specified pacakge name")
     parser.add_argument("-f", "--filter",
                         action="store", dest="filter_dir", default=None,
-                        help="use specified folder with intents data that is considered safe. Apps that communciate with these intents will not be flagged as colluding. A default directory of common intent data to use for this is located at " + default_intent_data_to_filter)
+                        help="use specified folder with intent data that is considered safe. Apps that communciate with these intents will not be flagged as colluding. A default directory of common intent data to use for this is located at " + default_intent_data_to_filter + ". Intent actions should be organized inside different files inside the folder (one intent action per line)")
+
 
     args = parser.parse_args()
 
