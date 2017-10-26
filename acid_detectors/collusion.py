@@ -1,6 +1,6 @@
 import logging
 from sets import Set
-from acid_detectors.utils import get_all_in_dir, swipl_path
+from acid_detectors.utils import get_all_files_in_dir, swipl_path
 
 __author__ = 'jorgeblasco'
 import re
@@ -186,7 +186,7 @@ def read_mapping_file(mapping_file):
     return mapping
 
 def filter_intents_by_folder(rule_file,intent_filters_folder):
-    files = get_all_in_dir(intent_filters_folder,"*")
+    files = get_all_files_in_dir(intent_filters_folder, "*")
     lines_to_remove = []
     filtered_file = rule_file+".filtered"
     for file in files:
@@ -243,5 +243,3 @@ def replace_packages_strings_file(in_filename):
                 line = line.replace(item,str(mapping[item]))
             outfile.write(line)
     return out_filename
-
-

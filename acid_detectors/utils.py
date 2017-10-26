@@ -202,8 +202,8 @@ def stats_file(infilename,statsfilename):
     return statsfilename
 
 def swipl_path():
-    if os.name == 'posix':
-        return 'swipl'
-    else:
-        return 'swipl'
+    # if os.name == 'posix':
+    #     return 'swipl'
+    # else:
+    return 'swipl'
 

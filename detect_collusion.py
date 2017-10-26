@@ -1,75 +1,55 @@
 #!/usr/bin/env python
 
+import acid_detectors.collusion as collusion
 import argparse
 import logging
-
-
-# from __future__ import division
-# import os
-# from sets import Set
-# import sys
-# from collusion import find_all_colluding, CollusionSet, filter_intents_by_folder, \
-#     find_all_comm, read_mapping_file, replace_channels_strings_file, replace_packages_strings_file, \
-#     find_all_colluding_length, find_package_colluding_length, find_package_colluding, communication_channels
-# import progressbar
-# import collusion
-# import logging
-# import logging.config
-# from optparse import OptionParser
+import os
+from sets import Set
 
 __author__ = "jorgeblasco and Liam O'Reilly"
 VERSION_NUMBER = "1.1"
+COLLUSION_KINDS = ['colluding_info', 'colluding_money1', 'colluding_money2', 'colluding_service', 'colluding_camera', 'colluding_accounts', 'colluding_sms']
 
 
-# new argument names in this one.
-# collusion_sets(args.prolog_program_filename, args.collusion_kind, args.filter, args.communication_length, args.app_package)
+def collusion_sets(prolog_program_filename, collusion_kind, filter_dir, communication_length, app_package):
+    sets = Set()
+    base_file = prolog_program_filename
+    if filter_dir is not None and os.path.isdir(filter_dir):
+        logging.info("Filtering intents")
+        filtered_file_name = collusion.filter_intents_by_folder(prolog_program_filename, filter_dir)
+        base_file = filtered_file_name
 
-# def collusion_sets(prolog_file,collusion_kind,filter_folder="",length=0,app=""):
-#     sets = Set()
-#     base_file = prolog_file
-#     if filter_folder!="" and os.path.isdir(filter_folder):
-#         print "Filtering intents"
-#         filtered_file_name = filter_intents_by_folder(prolog_file,filter_folder)
-#         base_file = filtered_file_name
-#     numbered_channels_file = replace_channels_strings_file(base_file)
-#     mapping_channels = read_mapping_file(base_file+collusion.channel_numbering_mapping_suffix)
-#     numbered_packages_file = replace_packages_strings_file(numbered_channels_file)
-#     mapping_packages = read_mapping_file(numbered_channels_file+collusion.package_numbering_mapping_suffix)
-#     print "Finding colluding apps"
-#     if length >1:
-#         if app != "":
-#             app_value = mapping_packages.index("'"+app+"'")
-#             logging.info("Specific length and app")
-#             app_sets_list = find_package_colluding_length(numbered_packages_file,collusion_kind,app_value,length)
-#         else:
-#             logging.info("Specific length ")
-#             app_sets_list = find_all_colluding_length(numbered_packages_file,collusion_kind,length)
-#     elif length >=0:
-#         if app != "":
-#             app_value = mapping_packages.index("'"+app+"'")
-#             logging.info("Specific app")
-#             app_sets_list = find_package_colluding(numbered_packages_file,app_value,collusion_kind)
-#         else:
-#             logging.info("Searching for all")
-#             app_sets_list = find_all_colluding(numbered_packages_file,collusion_kind)
-#     print "Finding communication channels"
-#     done = 0
-#     for app_set in app_sets_list:
-#         channels = communication_channels(numbered_packages_file,app_set)
-#         c_set = CollusionSet(collusion_kind,app_set,channels,mapping_packages,mapping_channels)
-#         sets.add(c_set)
-#         done += 1
-#         #update_profess(done,len(app_sets_list))
-#     return sets
-#     #if filtered_file:
-#     #    os.remove(filtered_file)
-#     #os.remove(escaped_file)
+    numbered_channels_file = collusion.replace_channels_strings_file(base_file)
+    mapping_channels = collusion.read_mapping_file(base_file + collusion.channel_numbering_mapping_suffix)
+    numbered_packages_file = collusion.replace_packages_strings_file(numbered_channels_file)
+    mapping_packages = collusion.read_mapping_file(numbered_channels_file + collusion.package_numbering_mapping_suffix)
+    
+    logging.info("Finding colluding apps")
 
-# def update_profess(done, finish):
-#     sys.stdout.write('\r')
-#     # the exact output you're looking for:
-#     sys.stdout.write("[%-20s] %d%% %d out of %d" % ('='*int((done/finish)*20), int(100*(done/finish)), done, finish))
-#     sys.stdout.flush()
+    if communication_length is None:
+        if app_package is None:
+            logging.info("Searching for all")
+            app_sets_list = collusion.find_all_colluding(numbered_packages_file, collusion_kind)
+        else:
+            app_value = mapping_packages.index("'" + app_package + "'")
+            logging.info("Specific app")
+            app_sets_list = collusion.find_package_colluding(numbered_packages_file, app_value, collusion_kind)
+    else:
+        if app_package is None:
+            logging.info("Specific length ")
+            app_sets_list = collusion.find_all_colluding_length(numbered_packages_file, collusion_kind, communication_length)
+        else:
+            app_value = mapping_packages.index("'" + app_package + "'")
+            logging.info("Specific length and app")
+            app_sets_list = collusion.find_package_colluding_length(numbered_packages_file, collusion_kind, app_value, communication_length)
+    
+    logging.info("Finding communication channels")
+
+    for app_set in app_sets_list:
+        channels = collusion.communication_channels(numbered_packages_file, app_set)
+        c_set = collusion.CollusionSet(collusion_kind, app_set, channels, mapping_packages, mapping_channels)
+        sets.add(c_set)
+    return sets
 
 
 def main():
@@ -79,19 +59,19 @@ def main():
                         help="the prolog program previously generated by the generate_prolog program")
     parser.add_argument("collusion_kind",
                         metavar='collusion_kind',
-                        help="the kind of collusion that should be detected",
-                        choices=['colluding_info', 'colluding_money1','colluding_money2','colluding_service','colluding_camera','colluding_accounts','colluding_sms'])
+                        help="the kind of collusion that should be detected. Possible values are: %s" % str.join(", ", COLLUSION_KINDS),
+                        choices=COLLUSION_KINDS)
     parser.add_argument("-v", "--verbose",
                         action="store_true", dest="verbose", default=False,
                         help="increase output verbosity")
-    parser.add_argument("-l", "--length",
-                        action="store", dest="communication_length", default=0,
+    parser.add_argument("-l", "--length", type=int,
+                        action="store", dest="communication_length", default=None,
                         help="only detect collusion based on communication paths of a specified length (i.e., app sets of a given size). This is useful to reduce the search space")
     parser.add_argument("-a", "--app_package",
                         action="store", dest="app_package", default=None,
                         help="detect collusion only for app sets that start with the app with specified pacakge name")
     parser.add_argument("-f", "--filter",
-                        action="store", dest="filter", default=None,
+                        action="store", dest="filter_dir", default=None,
                         help="use specified folder with intents data to filter out from the fact list")
 
     args = parser.parse_args()
@@ -104,9 +84,13 @@ def main():
 
     logging.info("Version " + VERSION_NUMBER)
     
-    colluding_app_sets = collusion_sets(args.prolog_program_filename, args.collusion_kind, args.filter, args.communication_length, args.app_package)
-    for colluding_app_set in colluding_app_sets:
-        colluding_app_set.description()
+    colluding_app_sets = collusion_sets(args.prolog_program_filename, args.collusion_kind, args.filter_dir, args.communication_length, args.app_package)
+    
+    if len(colluding_app_sets) == 0:
+        print("No collusion detected")
+    else:
+        for colluding_app_set in colluding_app_sets:
+            colluding_app_set.description()
 
 
 if __name__ == "__main__":
