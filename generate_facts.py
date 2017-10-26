@@ -134,7 +134,7 @@ def generate_facts(apk_file_list, output_dir, output_dir_prefix):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Collusion facts generator, version %s. Produce the collusion facts for the given android apks. For each specidied android apk file, a directory will be created which stores the extracted collusion facts." % VERSION_NUMBER)
+    parser = argparse.ArgumentParser(description="Collusion facts generator, version %s. Produce the collusion facts for the given android apks. For each specidied android apk file, a directory will be created which stores the extracted collusion facts. These facts will be used by the generate_prolog program to create a prolog program (which the detect_collusion program will use). If any apks have previously generated collusion fact directories, then these apks will be skipped. This allows for incremental adding of collusion fact directories." % VERSION_NUMBER)
     parser.add_argument("-v", "--verbose",
                         action="store_true", dest="verbose", default=False,
                         help="increase output verbosity")
