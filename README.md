@@ -10,6 +10,8 @@ Requires Python 2.7. This project relies on Androguard to execute most of the an
 function call inside the `dvm.py`. This project links directly to a version with that bug fixed so you don't need to change anything
 Additionally, the tool uses the comman line SWI-Prolog implementation.
 
+## Running the Tools
+
 ### Step 1: Generation of Collusion Facts.
 The first step is to generate the collusion facts for a set of apps. The tool will extract the facts and write them to a directory per analysed app.
 
