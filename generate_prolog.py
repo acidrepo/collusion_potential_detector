@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 
-import logging
-import argparse
-import os
 from acid_detectors.utils import get_all_directrories_in_dir
+import argparse
+import logging
+import os
 
 
 __author__ = "jorgeblasco and Liam O'Reilly"
 VERSION_NUMBER = "1.1"
+
 
 def append_file_to_file(opened_output_file, input_filename):
     with open(input_filename, 'r') as input_file:
@@ -108,6 +109,7 @@ def main():
         exit(-1);
     
     produce_prolog_program(collusion_fact_directories, args.output_file, args.prolog_rules_filename, args.external_storage_enabled)
+
 
 if __name__ == "__main__":
     main()

@@ -1,27 +1,30 @@
 #!/usr/bin/env python
 
-import logging
 from acid_detectors.implicit_intents import get_implicit_intents, get_dynamic_receivers, get_static_receivers
 from acid_detectors.shared_preferences import get_shared_preferences_writes, get_shared_preferences_reads
+from acid_detectors.utils import escape_quotes, get_all_files_in_dir
 import argparse
+import logging
+import ntpath
 import os
 import sys
+
+# ensure androguard library is imported from our modified version
 sys.path.append("androguard-acid/")
 import androguard.misc
-import ntpath
-from acid_detectors.utils import escape_quotes, get_all_files_in_dir
+
 
 __author__ = "jorgeblasco and Liam O'Reilly"
 VERSION_NUMBER = "1.1"
 
 
-def analyse_apk_file(file):
-    logging.info("Analyzing file %s", file)
+def analyse_apk_file(apk_filename):
+    logging.info("Analyzing file %s", apk_filename)
 
     try:
-        a, d, dx = androguard.misc.AnalyzeAPK(file)
+        a, d, dx = androguard.misc.AnalyzeAPK(apk_filename)
     except:
-        logging.warning(file + " is not a valid APK. Skipping")
+        logging.warning(apk_filename + " is not a valid APK. Skipping")
         return None
 
     try:
@@ -32,7 +35,7 @@ def analyse_apk_file(file):
         package_name = a.get_package()
         app_facts_dict['package_name'] = package_name
 
-        app_base_file_name = ntpath.basename(file)
+        app_base_file_name = ntpath.basename(apk_filename)
         app_facts_dict['app_base_file_name'] = app_base_file_name
 
         # Permissions
@@ -75,7 +78,7 @@ def analyse_apk_file(file):
         return app_facts_dict
     except Exception as err:
         logging.critical(err)
-        logging.critical("Error during analysis of " + file + ". Skpping")
+        logging.critical("Error during analysis of " + apk_filename + ". Skpping")
         return None
 
 
@@ -113,14 +116,14 @@ def generate_facts(apk_file_list, output_dir, output_dir_prefix):
         logging.info("Output directory " + output_dir + " does not exist. Creating it")
         os.mkdir(output_dir)
 
-    for file in apk_file_list:
-        app_output_dir = os.path.join(output_dir, output_dir_prefix + ntpath.basename(file))
+    for apk_filename in apk_file_list:
+        app_output_dir = os.path.join(output_dir, output_dir_prefix + ntpath.basename(apk_filename))
 
         if os.path.exists(app_output_dir):
             logging.warning("Output directory " + app_output_dir + " already exists. Skipping analysis of " + file)
             continue
 
-        app_facts_dict = analyse_apk_file(file)
+        app_facts_dict = analyse_apk_file(apk_filename)
 
         if app_facts_dict is None:
             continue
@@ -128,6 +131,7 @@ def generate_facts(apk_file_list, output_dir, output_dir_prefix):
         os.mkdir(app_output_dir)
 
         write_facts_to_files(app_facts_dict, app_output_dir)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Collusion facts generator, version %s. Produce the collusion facts for the given android apks. For each specidied android apk file, a directory will be created which stores the extracted collusion facts." % VERSION_NUMBER)
@@ -167,6 +171,7 @@ def main():
         exit(-1);
 
     generate_facts(apk_file_list, args.output_dir, args.output_dir_prefix)
+
 
 if __name__ == "__main__":
     main()
