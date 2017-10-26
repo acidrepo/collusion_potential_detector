@@ -6,6 +6,7 @@ import logging
 import os
 from sets import Set
 
+
 __author__ = "jorgeblasco and Liam O'Reilly"
 VERSION_NUMBER = "1.1"
 COLLUSION_KINDS = ['colluding_info', 'colluding_money1', 'colluding_money2', 'colluding_service', 'colluding_camera', 'colluding_accounts', 'colluding_sms']
