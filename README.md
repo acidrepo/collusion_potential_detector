@@ -22,7 +22,7 @@ generate_facts --help
 ```
 
 This tool generates various output files per analysed apk file:
-- `packages.pl.partial: Prolog facts about the apk package name.
+- `packages.pl.partial`: Prolog facts about the apk package name.
 - `uses.pl.partial`: Prolog facts about permissions used by the apps.
 - `trans.pl.partial`: Prolog facts about the communication channels used by the apps to send information to other apps.
 - `recv.pl.partial`: Prolog facts about the communication channels used by the apps to receive information from other apps.
