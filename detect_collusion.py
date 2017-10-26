@@ -54,6 +54,8 @@ def collusion_sets(prolog_program_filename, collusion_kind, filter_dir, communic
 
 
 def main():
+    default_intent_data_to_filter = os.path.join(os.path.dirname(os.path.realpath(__file__)), "default_intent_data_to_filter")
+
     parser = argparse.ArgumentParser(description="Collusion detection program, version %s. Runs the prolog program to detect collusion. This tool outputs a list of all collusion app sets found in the speficied prolog program (which was previously produced by the generate_prolog program). It includes the apps in the set, and the channels used to communicate." % VERSION_NUMBER)
     parser.add_argument("prolog_program_filename",
                         metavar='prolog_program_filename',
@@ -73,7 +75,7 @@ def main():
                         help="detect collusion only for app sets that start with the app with specified pacakge name")
     parser.add_argument("-f", "--filter",
                         action="store", dest="filter_dir", default=None,
-                        help="use specified folder with intents data to filter out from the fact list")
+                        help="use specified folder with intents data that is considered safe. Apps that communciate with these intents will not be flagged as colluding. A default directory of common intent data to use for this is located at " + default_intent_data_to_filter)
 
     args = parser.parse_args()
 
