@@ -120,7 +120,7 @@ def generate_facts(apk_file_list, output_dir, output_dir_prefix):
         app_output_dir = os.path.join(output_dir, output_dir_prefix + ntpath.basename(apk_filename))
 
         if os.path.exists(app_output_dir):
-            logging.warning("Output directory " + app_output_dir + " already exists. Skipping analysis of " + file)
+            logging.warning("Output directory " + app_output_dir + " already exists. Skipping analysis of " + apk_filename)
             continue
 
         app_facts_dict = analyse_apk_file(apk_filename)
