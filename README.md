@@ -55,8 +55,7 @@ sudo chown -R root:root /usr/local/collusion_potential_detector
 
 sudo ln -s /usr/local/collusion_potential_detector/generate_facts.py /usr/local/bin/generate_facts
 
-sudo ln -s /usr/local/collusion_potential_detector/generate_prolog.py /usr/
-local/bin/generate_prolog
+sudo ln -s /usr/local/collusion_potential_detector/generate_prolog.py /usr/local/bin/generate_prolog
 
 sudo ln -s /usr/local/collusion_potential_detector/detect_collusion.py /usr/local/bin/detect_collusion
 ```
